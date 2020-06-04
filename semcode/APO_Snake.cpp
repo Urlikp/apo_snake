@@ -2,14 +2,11 @@
   Project main function template for MicroZed based MZ_APO board
   designed by Petr Porazil at PiKRON
 
-  change_me.c      - main file
+  APO_Snake.c      - main file
 
-  include your name there and license for distribution.
-
-  Remove next text: This line should not appear in submitted
-  work and project name should be change to match real application.
-  If this text is there I want 10 points subtracted from final
-  evaluation.
+  (C) Copyright 2020 by Jiri Povolny and Marian Krotil
+      e-mail:   povolji2@fel.cvut.cz, krotima1@fel.cvut.cz
+      license:  any combination of GPL, LGPL, MPL or BSD licenses
 
  *******************************************************************/
 
@@ -41,7 +38,7 @@
 #define WHITE 				0xffff
 #define BLACK 				0x0000
 
-unsigned short *fb;
+uint16_t *fb;
 enum direction{UP, RIGHT, DOWN, LEFT};
 enum direction dir;
 
@@ -122,19 +119,19 @@ void move(int *head_x, int *head_y)
 
 int main(int argc, char *argv[])
 {
-	unsigned short c;
+	//unsigned short c;
 	int head_x, head_y;
 
 	head_x = 4;
 	head_y = 4;
 
-	dir = UP;
+	dir = RIGHT;
 
 	unsigned char *parlcd_mem_base;
 	parlcd_mem_base = map_phys_address(PARLCD_REG_BASE_PHYS, PARLCD_REG_SIZE, 0);
 	parlcd_hx8357_init(parlcd_mem_base);
 
-	fb = (unsigned short *)malloc(320*480*2);
+	fb = (uint16_t *)malloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t));
 
   
 	/*parlcd_write_cmd(parlcd_mem_base, 0x2c);
@@ -170,18 +167,18 @@ int main(int argc, char *argv[])
 	}
 
 	parlcd_delay(2000);
-	
-	parlcd_write_cmd(parlcd_mem_base, 0x2c);
+	*/
+	/*parlcd_write_cmd(parlcd_mem_base, 0x2c);
 	for (int i = 0; i < 320 ; i++) 
 	{
 		for (int j = 0; j < 480 ; j++) 
 		{
-			fb[i * 480 + j] = DARK_BLUE;
+			fb[i * 480 + j] = BRIGHT_BLUE;
 		}
 	}
 
-	draw(parlcd_mem_base);
-
+	draw(parlcd_mem_base);*/
+	/*
 	parlcd_delay(2000);*/
 	
 	/*for (int i = 0; i < GAME_WIDTH/SIZE_OF_SQUARE; i++)
