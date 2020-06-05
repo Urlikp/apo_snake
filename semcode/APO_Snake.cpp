@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include <time.h>
 #include <unistd.h>
+#include <termios.h>
 
 #include "mzapo_parlcd.h"
 #include "mzapo_phys.h"
@@ -39,8 +40,10 @@
 #define BLACK 				0x0000
 
 uint16_t *fb;
-enum direction{UP, RIGHT, DOWN, LEFT};
+enum direction{STOP, UP, RIGHT, DOWN, LEFT};
 enum direction dir;
+bool game_running;
+struct termios keyboard_origtty;
 
 /*void draw_pixel(int x, int y, unsigned short color) 
 {
@@ -71,6 +74,69 @@ int char_width(font_descriptor_t* fdes, int ch)
 	return width;
 }*/
 
+int kbhit(void)
+{
+    /* return 0 for no key pressed, 1 for key pressed */
+    int return_value = 0;
+
+    /* time struct for the select() function, to only wait a little while */
+    struct timeval select_time;
+    /* file descriptor variable for the select() call */
+    fd_set readset;
+
+    /* we're only interested in STDIN */
+    FD_ZERO(&readset);
+    FD_SET(STDIN_FILENO, &readset);
+
+    /* how long to block for - this must be > 0.0, but could be changed
+    to some other setting. 10-18msec seems to work well and only
+    minimally load the system (0% CPU loading) */
+    select_time.tv_sec = 0;
+    select_time.tv_usec = 10;
+
+    /* is there a keystroke there? */
+    if (select(1, &readset, NULL, NULL, &select_time))
+    {
+        /* yes, remember it */
+        return_value = 1;
+    }
+
+
+    /* return with what we found out */
+    return return_value;
+}
+
+void PrepareKeyboardTtySettings(void)
+{
+    /* store the current tty settings */
+    if (!tcgetattr(0, &keyboard_origtty))
+    {
+        struct termios tty;
+        /* start with the current settings */
+        tty = keyboard_origtty;
+        /* make modifications to put it in raw mode, turn off echo */
+        tty.c_lflag &= ~ICANON;
+        tty.c_lflag &= ~ECHO;
+        tty.c_lflag &= ~ISIG;
+        tty.c_cc[VMIN] = 1;
+        tty.c_cc[VTIME] = 0;
+
+        /* put the settings into effect */
+        tcsetattr(0, TCSADRAIN, &tty);
+    }
+}
+
+
+char getch(void)
+{
+	char ch;
+
+    /* Read in one character */
+    read(0,&ch,1);
+
+    return ch;
+}
+
 void fill_unit(int x, int y, unsigned short colour)
 {
 	if (x >= 0 && x < GAME_WIDTH/SIZE_OF_SQUARE && y >= 0 && y < GAME_HEIGHT/SIZE_OF_SQUARE)
@@ -94,6 +160,12 @@ void draw(unsigned char *parlcd_mem_base)
 	}
 }
 
+bool is_tile_occupied(int x, int y)
+{
+	uint16_t tile = fb[LCD_WIDTH * (y * SIZE_OF_SQUARE) + (x * SIZE_OF_SQUARE)];
+	return tile == DARK_RED || tile == DARK_BLUE;
+}
+
 void move(int *head_x, int *head_y)
 {
 	fill_unit(*head_x, *head_y, BLACK);
@@ -115,6 +187,49 @@ void move(int *head_x, int *head_y)
 		break;
 	}	
 	fill_unit(*head_x, *head_y, WHITE);
+	if ((*head_x) < 0 || (*head_x) >= GAME_WIDTH/SIZE_OF_SQUARE || (*head_y) < 0 || (*head_y) >= GAME_HEIGHT/SIZE_OF_SQUARE)
+	{
+		game_running = false;
+	}
+}
+
+void input()
+{
+	if (kbhit())
+	{
+		switch (getch())
+		{
+		case 'w':
+			if (dir != DOWN)
+			{
+				dir = UP;
+			}
+			break;
+		case 'a':
+			if (dir != RIGHT)
+			{
+				dir = LEFT;
+			}
+			break;
+		case 's':
+			if (dir != UP)
+			{
+				dir = DOWN;
+			}
+			break;
+		case 'd':
+			if (dir != LEFT)
+			{
+				dir = RIGHT;
+			}
+			break;
+		case 'x':
+			game_running = false;
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 int main(int argc, char *argv[])
@@ -122,17 +237,35 @@ int main(int argc, char *argv[])
 	//unsigned short c;
 	int head_x, head_y;
 
-	head_x = 4;
-	head_y = 4;
+	head_x = 1;
+	head_y = 1;
 
-	dir = RIGHT;
+	dir = STOP;
 
+	game_running = true;
+	
 	unsigned char *parlcd_mem_base;
 	parlcd_mem_base = map_phys_address(PARLCD_REG_BASE_PHYS, PARLCD_REG_SIZE, 0);
 	parlcd_hx8357_init(parlcd_mem_base);
 
 	fb = (uint16_t *)malloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t));
-
+	
+	if (fb == NULL)
+	{
+		exit(1);
+	}
+	
+	//system("stty raw"); 
+	
+	PrepareKeyboardTtySettings();
+	
+	while (game_running)
+	{
+		draw(parlcd_mem_base);
+		input();
+		move(&head_x, &head_y);
+		parlcd_delay(1000);
+	}
   
 	/*parlcd_write_cmd(parlcd_mem_base, 0x2c);
 	for (int i = 0; i < 320 ; i++) 
@@ -186,7 +319,7 @@ int main(int argc, char *argv[])
 		add_unit(i, i);
 	}*/
 	
-	fill_unit(head_x, head_y, WHITE);
+	/*fill_unit(head_x, head_y, WHITE);
 	draw(parlcd_mem_base);
 	parlcd_delay(1000);
 	
@@ -204,7 +337,7 @@ int main(int argc, char *argv[])
 	
 	move(&head_x, &head_y);
 	draw(parlcd_mem_base);
-	
+	*/
 	/*int x = 10;
 	char str[]="Goodbye world";
 	char *ch=str;
@@ -220,6 +353,7 @@ int main(int argc, char *argv[])
 		x+=char_width(fdes, *ch);
 		ch++;
 	}*/
-
-  return 0;
+	
+	free(fb);
+	return 0;
 }
