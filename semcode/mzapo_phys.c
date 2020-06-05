@@ -25,7 +25,7 @@
 
 const char *map_phys_memdev="/dev/mem";
 
-void *map_phys_address(off_t region_base, size_t region_size, int opt_cached)
+unsigned char *map_phys_address(off_t region_base, size_t region_size, int opt_cached)
 {
   unsigned long mem_window_size;
   unsigned long pagesize;
@@ -52,5 +52,5 @@ void *map_phys_address(off_t region_base, size_t region_size, int opt_cached)
     return NULL;
   }
 
-  return (void *)mem;
+  return mem;
 }
