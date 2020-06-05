@@ -17,7 +17,10 @@
 #include <stdint.h>
 #include <time.h>
 #include <unistd.h>
+
 #include <termios.h>
+
+#include <math.h>
 
 #include "mzapo_parlcd.h"
 #include "mzapo_phys.h"
@@ -29,7 +32,11 @@
 #define LCD_HEIGHT			320
 #define GAME_WIDTH			320
 #define GAME_HEIGHT			320
+
+#define WAIT_TIME			100
+
 #define SIZE_OF_SQUARE		32
+
 #define BRIGHT_RED 			0xf800
 #define BRIGHT_GREEN 		0x07e0
 #define BRIGHT_BLUE 		0x001f
@@ -45,15 +52,25 @@ enum direction dir;
 bool game_running;
 struct termios keyboard_origtty;
 
-/*void draw_pixel(int x, int y, unsigned short color) 
+typedef struct Tile{
+	int x;
+	int y;
+}snake_tile;
+
+typedef struct Snake{
+	snake_tile* tiles;
+	int size;
+}snake;
+
+/*void draw_pixel(int xTile, int yTile, unsigned short color) 
 {
-	if (x>=0 && x<480 && y>=0 && y<320) 
+	if (xTile>=0 && xTile<480 && yTile>=0 && yTile<320) 
 	{
-		fb[x+480*y] = color;
+		fb[xTile+480*yTile] = color;
 	}
 }
 
-void draw_char(int x, int y, font_descriptor_t* fdes, char ch) {
+void draw_char(int xTile, int yTile, font_descriptor_t* fdes, char ch) {
 }
 
 int char_width(font_descriptor_t* fdes, int ch) 
@@ -73,6 +90,7 @@ int char_width(font_descriptor_t* fdes, int ch)
 	}
 	return width;
 }*/
+
 
 int kbhit(void)
 {
@@ -137,18 +155,61 @@ char getch(void)
     return ch;
 }
 
-void fill_unit(int x, int y, unsigned short colour)
+void fill_unit(int xTile, int yTile, unsigned short colour)
 {
-	if (x >= 0 && x < GAME_WIDTH/SIZE_OF_SQUARE && y >= 0 && y < GAME_HEIGHT/SIZE_OF_SQUARE)
+	if (xTile >= 0 && xTile < GAME_WIDTH/SIZE_OF_SQUARE && yTile >= 0 && yTile < GAME_HEIGHT/SIZE_OF_SQUARE)
 	{
-		for (int i = y * SIZE_OF_SQUARE; i < SIZE_OF_SQUARE * y + SIZE_OF_SQUARE; i++)
+		for (int i = yTile * SIZE_OF_SQUARE; i < SIZE_OF_SQUARE * yTile + SIZE_OF_SQUARE; i++)
 		{
-			for (int j = x * SIZE_OF_SQUARE; j < SIZE_OF_SQUARE * x + SIZE_OF_SQUARE; j++)
+			for (int j = xTile * SIZE_OF_SQUARE; j < SIZE_OF_SQUARE * xTile + SIZE_OF_SQUARE; j++)
 			{
 				fb[LCD_WIDTH * i + j] = colour;
 			}
 		}
 	}
+}
+
+void fill_unit_border(int xTile, int yTile, int borderWidth, unsigned short colour)
+{
+	if (xTile >= 0 && xTile < GAME_WIDTH/SIZE_OF_SQUARE && yTile >= 0 && yTile < GAME_HEIGHT/SIZE_OF_SQUARE)
+	{
+		for (int i = yTile * SIZE_OF_SQUARE; i < yTile * SIZE_OF_SQUARE + borderWidth; i++) {
+            for (int j = xTile * SIZE_OF_SQUARE; j < xTile * SIZE_OF_SQUARE + SIZE_OF_SQUARE; j++) {
+                fb[LCD_WIDTH * i + j] = colour;
+            }
+        }
+        for (int i = yTile * SIZE_OF_SQUARE; i < yTile * SIZE_OF_SQUARE + SIZE_OF_SQUARE; i++) {
+            for (int j = xTile * SIZE_OF_SQUARE; j < xTile * SIZE_OF_SQUARE + borderWidth; j++) {
+                fb[LCD_WIDTH * i + j] = colour;
+            }
+        }
+        for (int i = yTile * SIZE_OF_SQUARE; i < yTile * SIZE_OF_SQUARE + SIZE_OF_SQUARE; i++) {
+            for (int j = xTile * SIZE_OF_SQUARE + SIZE_OF_SQUARE - borderWidth; j < xTile * SIZE_OF_SQUARE + SIZE_OF_SQUARE; j++) {
+                fb[LCD_WIDTH * i + j] = colour;
+            }
+        }
+        for (int i = yTile * SIZE_OF_SQUARE + SIZE_OF_SQUARE - borderWidth; i < yTile * SIZE_OF_SQUARE + SIZE_OF_SQUARE; i++) {
+            for (int j = xTile * SIZE_OF_SQUARE; j < xTile * SIZE_OF_SQUARE + SIZE_OF_SQUARE; j++) {
+                fb[LCD_WIDTH * i + j] = colour;
+            }
+        }
+	}
+}
+
+void move_to_food_position(int *head_x, int *head_y, int food_x, int food_y){
+	fill_unit(*head_x, *head_y, BLACK);
+	float diff_x = (float)((*head_x) - food_x);
+	float diff_y = (float)((*head_y) - food_y);
+	float distance = (float) sqrt(pow(diff_x,2)+pow(diff_y,2));
+	int velocity_x = round((-1/distance)*diff_x);
+	int velocity_y = round((-1/distance)*diff_y);
+	(*head_x) += velocity_x;
+	if (velocity_x==0)
+	{
+		(*head_y) += velocity_y;
+	}
+	fill_unit(*head_x, *head_y, WHITE);
+	printf("%d, %d\n", velocity_y, velocity_x);
 }
 
 void draw(unsigned char *parlcd_mem_base)
@@ -237,6 +298,7 @@ int main(int argc, char *argv[])
 	//unsigned short c;
 	int head_x, head_y;
 
+
 	head_x = 1;
 	head_y = 1;
 
@@ -318,27 +380,87 @@ int main(int argc, char *argv[])
 	{
 		add_unit(i, i);
 	}*/
+
 	
 	/*fill_unit(head_x, head_y, WHITE);
+
+
+	// for (size_t i = 0; i < GAME_HEIGHT/SIZE_OF_SQUARE; i++)
+	// {
+	// 	for (size_t j = 0; j < GAME_WIDTH/SIZE_OF_SQUARE; j++)
+	// 	{
+	// 			fill_unit_border(j,i, 3, DARK_BLUE);
+	// 	}
+	// }
+	// draw(parlcd_mem_base);
+	int foodX = 9;
+	int foodY = 9;
+	fill_unit_border(foodX,foodY, 3, WHITE);
+	fill_unit(head_x, head_y, WHITE);
+
 	draw(parlcd_mem_base);
-	parlcd_delay(1000);
-	
-	move(&head_x, &head_y);
+	for (size_t i = 0; i < 20; i++)
+	{
+	move_to_food_position(&head_x, &head_y, foodX,foodY);
 	draw(parlcd_mem_base);
-	parlcd_delay(1000);
-	
-	move(&head_x, &head_y);
+	parlcd_delay(WAIT_TIME);
+	}
+
+	foodX = 1;
+	foodY = 3;
+	fill_unit_border(foodX,foodY, 3, WHITE);
+	fill_unit(head_x, head_y, WHITE);
 	draw(parlcd_mem_base);
-	parlcd_delay(1000);
-	
-	move(&head_x, &head_y);
+	for (size_t i = 0; i < 20; i++)
+	{
+	move_to_food_position(&head_x, &head_y, foodX,foodY);
 	draw(parlcd_mem_base);
-	parlcd_delay(1000);
-	
-	move(&head_x, &head_y);
+	parlcd_delay(WAIT_TIME);
+	}
+
+	foodX = 9;
+	foodY = 7;
+	fill_unit_border(foodX,foodY, 3, WHITE);
+	fill_unit(head_x, head_y, WHITE);
 	draw(parlcd_mem_base);
+	for (size_t i = 0; i < 20; i++)
+	{
+	move_to_food_position(&head_x, &head_y, foodX,foodY);
+	draw(parlcd_mem_base);
+
 	*/
 	/*int x = 10;
+
+	parlcd_delay(WAIT_TIME);
+	}
+	
+
+	
+
+
+
+	// fill_unit(head_x, head_y, WHITE);
+	// draw(parlcd_mem_base);
+	// parlcd_delay(1000);
+	
+	// move(&head_x, &head_y);
+	// draw(parlcd_mem_base);
+	// parlcd_delay(1000);
+	
+	// move(&head_x, &head_y);
+	// draw(parlcd_mem_base);
+	// parlcd_delay(1000);
+	
+	// move(&head_x, &head_y);
+	// draw(parlcd_mem_base);
+	// parlcd_delay(1000);
+	
+	// move(&head_x, &head_y);
+	// draw(parlcd_mem_base);
+
+	
+	
+	/*int xTile = 10;
 	char str[]="Goodbye world";
 	char *ch=str;
 	font_descriptor_t* fdes = &font_winFreeSystem14x16;
@@ -349,8 +471,8 @@ int main(int argc, char *argv[])
 	}
 	for (int i=0; i<13; i++) 
 	{
-		draw_char(x, 10, fdes, *ch);
-		x+=char_width(fdes, *ch);
+		draw_char(xTile, 10, fdes, *ch);
+		xTile+=char_width(fdes, *ch);
 		ch++;
 	}*/
 	
