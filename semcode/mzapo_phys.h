@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-unsigned char *map_phys_address(off_t region_base, size_t region_size, int opt_cached);
+void *map_phys_address(off_t region_base, size_t region_size, int opt_cached);
 
 #ifdef __cplusplus
 } /* extern "C"*/
