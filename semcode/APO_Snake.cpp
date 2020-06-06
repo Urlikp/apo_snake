@@ -1,6 +1,6 @@
 /*******************************************************************
-  Project main function template for MicroZed based MZ_APO board
-  designed by Petr Porazil at PiKRON
+  Simple program to implement video game Snake on MicroZed based 
+  MZ_APO board designed by Petr Porazil at PiKRON
 
   APO_Snake.c      - main file
 
@@ -18,15 +18,14 @@
 #include <time.h>
 #include <unistd.h>
 
-#include <termios.h>
-
 #include <math.h>
 
 #include "mzapo_parlcd.h"
 #include "mzapo_phys.h"
 #include "mzapo_regs.h"
-
 #include "font_types.h"
+
+#include "input.h"
 
 #define LCD_WIDTH			480
 #define LCD_HEIGHT			320
@@ -46,11 +45,21 @@
 #define WHITE 				0xffff
 #define BLACK 				0x0000
 
+#define LED_LINE_0			0x00000000
+#define LED_LINE_1			0xff000000
+#define LED_LINE_2			0xffff0000
+#define LED_LINE_3			0xffffff00
+#define LED_LINE_4			0xffffffff
+
+#define LED_RED				0xff0000
+#define LED_GREEN			0x00ff00
+#define LED_BLUE			0x0000ff
+#define LED_BLACK			0x000000
+
 uint16_t *fb;
 enum direction{STOP, UP, RIGHT, DOWN, LEFT};
 enum direction dir;
 bool game_running;
-struct termios keyboard_origtty;
 
 typedef struct Tile{
 	int x;
@@ -92,70 +101,7 @@ int char_width(font_descriptor_t* fdes, int ch)
 }*/
 
 
-int kbhit(void)
-{
-    /* return 0 for no key pressed, 1 for key pressed */
-    int return_value = 0;
-
-    /* time struct for the select() function, to only wait a little while */
-    struct timeval select_time;
-    /* file descriptor variable for the select() call */
-    fd_set readset;
-
-    /* we're only interested in STDIN */
-    FD_ZERO(&readset);
-    FD_SET(STDIN_FILENO, &readset);
-
-    /* how long to block for - this must be > 0.0, but could be changed
-    to some other setting. 10-18msec seems to work well and only
-    minimally load the system (0% CPU loading) */
-    select_time.tv_sec = 0;
-    select_time.tv_usec = 10;
-
-    /* is there a keystroke there? */
-    if (select(1, &readset, NULL, NULL, &select_time))
-    {
-        /* yes, remember it */
-        return_value = 1;
-    }
-
-
-    /* return with what we found out */
-    return return_value;
-}
-
-void PrepareKeyboardTtySettings(void)
-{
-    /* store the current tty settings */
-    if (!tcgetattr(0, &keyboard_origtty))
-    {
-        struct termios tty;
-        /* start with the current settings */
-        tty = keyboard_origtty;
-        /* make modifications to put it in raw mode, turn off echo */
-        tty.c_lflag &= ~ICANON;
-        tty.c_lflag &= ~ECHO;
-        tty.c_lflag &= ~ISIG;
-        tty.c_cc[VMIN] = 1;
-        tty.c_cc[VTIME] = 0;
-
-        /* put the settings into effect */
-        tcsetattr(0, TCSADRAIN, &tty);
-    }
-}
-
-
-char getch(void)
-{
-	char ch;
-
-    /* Read in one character */
-    read(0,&ch,1);
-
-    return ch;
-}
-
-void fill_unit(int xTile, int yTile, unsigned short colour)
+void fill_unit(int xTile, int yTile, uint16_t colour)
 {
 	if (xTile >= 0 && xTile < GAME_WIDTH/SIZE_OF_SQUARE && yTile >= 0 && yTile < GAME_HEIGHT/SIZE_OF_SQUARE)
 	{
@@ -169,7 +115,7 @@ void fill_unit(int xTile, int yTile, unsigned short colour)
 	}
 }
 
-void fill_unit_border(int xTile, int yTile, int borderWidth, unsigned short colour)
+void fill_unit_border(int xTile, int yTile, int borderWidth, uint16_t colour)
 {
 	if (xTile >= 0 && xTile < GAME_WIDTH/SIZE_OF_SQUARE && yTile >= 0 && yTile < GAME_HEIGHT/SIZE_OF_SQUARE)
 	{
@@ -219,6 +165,21 @@ void draw(unsigned char *parlcd_mem_base)
 	{
 		parlcd_write_data(parlcd_mem_base, fb[i]);
 	}
+}
+
+void led_line(uint32_t val_line, unsigned char *mem_base)
+{
+	*(volatile uint32_t*)(mem_base + SPILED_REG_LED_LINE_o) = val_line;
+}
+
+void led_RGB1(uint32_t colour, unsigned char *mem_base)
+{
+	*(volatile uint32_t*)(mem_base + SPILED_REG_LED_RGB1_o) = colour;
+}
+
+void led_RGB2(uint32_t colour, unsigned char *mem_base)
+{
+	*(volatile uint32_t*)(mem_base + SPILED_REG_LED_RGB2_o) = colour;
 }
 
 bool is_tile_occupied(int x, int y)
@@ -295,9 +256,9 @@ void input()
 
 int main(int argc, char *argv[])
 {
-	//unsigned short c;
 	int head_x, head_y;
-
+	
+	//uint32_t val_line = 0xffffffff;
 
 	head_x = 1;
 	head_y = 1;
@@ -308,27 +269,64 @@ int main(int argc, char *argv[])
 	
 	unsigned char *parlcd_mem_base;
 	parlcd_mem_base = map_phys_address(PARLCD_REG_BASE_PHYS, PARLCD_REG_SIZE, 0);
+	if (parlcd_mem_base == NULL)
+    {
+    	exit(1);
+	}
 	parlcd_hx8357_init(parlcd_mem_base);
+	
+	unsigned char *mem_base;
+	mem_base = map_phys_address(SPILED_REG_BASE_PHYS, SPILED_REG_SIZE, 0);
+	if (mem_base == NULL)
+    {
+    	exit(1);
+	}
 
 	fb = (uint16_t *)malloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t));
-	
 	if (fb == NULL)
 	{
 		exit(1);
 	}
 	
-	//system("stty raw"); 
 	
-	PrepareKeyboardTtySettings();
+	/*led_RGB1(LED_RED, mem_base); 
+	parlcd_delay(1000);*/
+	led_RGB2(LED_RED, mem_base); 
+	parlcd_delay(1000);
+	led_RGB1(LED_RED, mem_base); 
+	parlcd_delay(1000);
+	led_RGB2(LED_GREEN, mem_base); 
+	parlcd_delay(1000);
+	led_RGB1(LED_GREEN, mem_base); 
+	parlcd_delay(1000);
+	led_RGB2(LED_BLUE, mem_base); 
+	parlcd_delay(1000);
+	led_RGB1(LED_BLUE, mem_base); 
+	parlcd_delay(1000);
+	led_RGB1(LED_BLACK, mem_base);
+	led_RGB2(LED_BLACK, mem_base); 
+	parlcd_delay(1000);
 	
-	while (game_running)
+	//PrepareKeyboardTtySettings();
+	
+	/*while (game_running)
 	{
 		draw(parlcd_mem_base);
 		input();
 		move(&head_x, &head_y);
 		parlcd_delay(1000);
-	}
-  
+	}*/
+	
+	/*led_line(LED_LINE_1, mem_base);
+	parlcd_delay(1000);
+	led_line(LED_LINE_2, mem_base);
+	parlcd_delay(1000);
+	led_line(LED_LINE_3, mem_base);
+	parlcd_delay(1000);
+	led_line(LED_LINE_4, mem_base);
+	parlcd_delay(1000);
+	led_line(LED_LINE_0, mem_base);
+  	*/
 	/*parlcd_write_cmd(parlcd_mem_base, 0x2c);
 	for (int i = 0; i < 320 ; i++) 
 	{
@@ -460,7 +458,7 @@ int main(int argc, char *argv[])
 
 	
 	
-	/*int xTile = 10;
+	int xTile = 10;
 	char str[]="Goodbye world";
 	char *ch=str;
 	font_descriptor_t* fdes = &font_winFreeSystem14x16;
