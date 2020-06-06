@@ -310,7 +310,7 @@ int main(int argc, char *argv[])
 	int foodX = 5;
 	int foodY = 5;
 	fill_unit_border(foodX,foodY, 3, WHITE);
-	//fill_unit(head_x, head_y, WHITE);
+	fill_unit(head_x, head_y, WHITE);
 	int counter =0;
 	draw(parlcd_mem_base);
 	for (size_t i = 0; i < 50; i++)
