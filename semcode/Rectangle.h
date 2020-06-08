@@ -7,11 +7,11 @@
                 w = width;
                 h = height;
             }
-            bool intersects(Rectangle rect){
-                if (x > rect.x + rect.w || rect.x > x + w) 	{
+            bool intersects(Rectangle *rect){
+                if (x > rect->x + rect->w || rect->x > x + w) 	{
                     return false;
                 }
-                if (y > rect.y + rect.h || rect.y > y + h) 	{
+                if (y > rect->y + rect->h || rect->y > y + h) 	{
                     return false;
                 }
                 return true; 
