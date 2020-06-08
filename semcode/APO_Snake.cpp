@@ -41,6 +41,7 @@
 #define GAME_HEIGHT			320
 
 #define SIZE_OF_SQUARE		32
+#define SIZE_OF_PIXEL		4
 
 #define WAIT_TIME			150
 
@@ -51,7 +52,8 @@
 #define DARK_RED 			0x7800
 #define DARK_GREEN	 		0x01e0
 #define DARK_BLUE 			0x000f
-#define WHITE 				0xffff
+#define BRIGHT_WHITE		0xffff
+#define DARK_WHITE			0x5555
 #define BLACK 				0x0000
 
 #define LED_LINE_0			0x00000000
@@ -72,15 +74,60 @@ enum direction{STOP, UP, RIGHT, DOWN, LEFT};
 enum direction dir;
 bool game_running;
 
-/*void draw_pixel(int xTile, int yTile, unsigned short color) 
+void draw_pixel(int xTile, int yTile, uint16_t colour) 
 {
 	if (xTile>=0 && xTile<480 && yTile>=0 && yTile<320) 
-	{
-		fb[xTile+480*yTile] = color;
+	{	
+		for (int i = yTile * SIZE_OF_PIXEL; i < SIZE_OF_PIXEL * yTile + SIZE_OF_PIXEL; i++)
+		{
+			for (int j = xTile * SIZE_OF_PIXEL; j < SIZE_OF_PIXEL * xTile + SIZE_OF_PIXEL; j++)
+			{
+				fb[LCD_WIDTH * i + j] = colour;
+			}
+		}
 	}
 }
 
-void draw_char(int xTile, int yTile, font_descriptor_t* fdes, char ch) {
+void draw_char(int xTile, int yTile, font_descriptor_t* fdes, int ch, int back, uint16_t colour) {
+	int w, bw, i, j;
+	const uint16_t *b;
+	unsigned patt = 0;
+	
+	ch -= fdes->firstchar;
+	if (!fdes->width)
+	{
+		w = fdes->maxwidth;
+	}
+	else
+	{
+		w = fdes->width[ch];
+	}
+	bw = (w + 15) / 16;
+	
+	if (!fdes->offset)
+	{
+		b = fdes->bits + ch * bw * fdes->height;
+	}
+	else
+	{
+		b = fdes->bits + fdes->offset[ch];
+	}
+	
+	for (j = 0; j < fdes->height; j++)
+	{
+		for (i = 0; i < w; i++)
+		{
+			if (!(i & 15))
+			{
+				patt = *(b++);
+			}
+			if (patt & 0x8000 || back)
+			{
+				draw_pixel(xTile + i, yTile + j, patt & 0x8000 ? colour : 0);
+			}
+			patt <<= 1;
+		}
+	}
 }
 
 int char_width(font_descriptor_t* fdes, int ch) 
@@ -99,8 +146,19 @@ int char_width(font_descriptor_t* fdes, int ch)
 		}
 	}
 	return width;
-}*/
+}
 
+void draw_string(int xTile, int yTile, uint16_t colour, char *ch, int size_of_string)
+{
+	font_descriptor_t* fdes = &font_winFreeSystem14x16;
+
+	for (int i = 0; i < size_of_string; i++) 
+	{
+		draw_char(xTile, yTile, fdes, *ch, 1, colour);
+		xTile += char_width(fdes, *ch);
+		ch++;
+	}
+}
 
 void fill_unit(int xTile, int yTile, uint16_t colour)
 {
@@ -180,7 +238,7 @@ void move(int *head_x, int *head_y)
 	default:
 		break;
 	}	
-	fill_unit(*head_x, *head_y, WHITE);
+	fill_unit(*head_x, *head_y, DARK_WHITE);
 	if ((*head_x) < 0 || (*head_x) >= GAME_WIDTH/SIZE_OF_SQUARE || (*head_y) < 0 || (*head_y) >= GAME_HEIGHT/SIZE_OF_SQUARE)
 	{
 		game_running = false;
@@ -240,6 +298,7 @@ int main(int argc, char *argv[])
 	// handler.add_snake(&sn2);
 	//handler.add_snake(&sn3);
 
+	/*
 	int head_x, head_y;
 	uint32_t val_line = 0xffffffff;
 
@@ -249,6 +308,7 @@ int main(int argc, char *argv[])
 	dir = STOP;
 
 	game_running = true;
+	*/
 	
 	unsigned char *parlcd_mem_base;
 	parlcd_mem_base = map_phys_address(PARLCD_REG_BASE_PHYS, PARLCD_REG_SIZE, 0);
@@ -258,12 +318,15 @@ int main(int argc, char *argv[])
 	}
 	parlcd_hx8357_init(parlcd_mem_base);
 	
+	/*
 	unsigned char *mem_base;
 	mem_base = map_phys_address(SPILED_REG_BASE_PHYS, SPILED_REG_SIZE, 0);
 	if (mem_base == NULL)
     {
     	exit(1);
 	}
+	*/
+	
 
 	fb = (uint16_t *)malloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t));
 	if (fb == NULL)
@@ -272,7 +335,7 @@ int main(int argc, char *argv[])
 	}
 
 
-
+	/*
 	Game_Properties game_properties{GAME_WIDTH, GAME_HEIGHT, SIZE_OF_SQUARE, LCD_WIDTH, LCD_HEIGHT};
 	game_running = true;
 	gm_state = Menu;
@@ -341,6 +404,7 @@ int main(int argc, char *argv[])
 			}	
 		}
 	}
+	*/
 
 
 
@@ -386,8 +450,7 @@ int main(int argc, char *argv[])
 	
 	
 
-	/*led_RGB1(LED_RED, mem_base); 
-	parlcd_delay(1000);*/
+	/*
 	led_RGB2(LED_RED, mem_base); 
 	parlcd_delay(2*WAIT_TIME);
 	led_RGB1(LED_RED, mem_base); 
@@ -403,6 +466,7 @@ int main(int argc, char *argv[])
 	led_RGB1(LED_BLACK, mem_base);
 	led_RGB2(LED_BLACK, mem_base); 
 	parlcd_delay(2*WAIT_TIME);
+	*/
 	
 	//PrepareKeyboardTtySettings();
 	
@@ -538,7 +602,7 @@ int main(int argc, char *argv[])
 	/*int x = 10;
 
 	parlcd_delay(WAIT_TIME);
-	}
+	}*/
 	
 
 	
@@ -563,24 +627,18 @@ int main(int argc, char *argv[])
 	
 	// move(&head_x, &head_y);
 	// draw(parlcd_mem_base);
-
 	
 	
-	int xTile = 10;
+	int xTile = 10, yTile = 10;
 	char str[]="Goodbye world";
-	char *ch=str;
-	font_descriptor_t* fdes = &font_winFreeSystem14x16;
-
-	for (int ptr = 0; ptr < 320*480 ; ptr++) 
+	int size_of_str = 0;
+	while (str[size_of_str] != 0)
 	{
-		fb[ptr]=0u;
+		size_of_str++;
 	}
-	for (int i=0; i<13; i++) 
-	{
-		draw_char(xTile, 10, fdes, *ch);
-		xTile+=char_width(fdes, *ch);
-		ch++;
-	}*/
+	char *begin = str;
+	draw_string(xTile, yTile, DARK_WHITE, begin, size_of_str);
+	draw(parlcd_mem_base);
 	//handler.delete_snakes();
 	free(fb);
 	return 0;
