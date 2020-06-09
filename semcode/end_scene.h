@@ -32,10 +32,24 @@
 #define STARTY_M 120
 #define STARTX_M 0
 //TEXT
-#define STARTX_1_M LCD_WIDTH/8-30
+#define STARTX_1_M LCD_WIDTH/8-LCD_WIDTH/10
 #define STARTY_1_M 35
 #define STARTY_2_M 60
 
-int menu_selection(char key_pressed, int& pointer);
+class End_Scene{
+    private:
+        int counter;
+        int moveX;
+        int moveY;
 
-void menu_fill_array(uint16_t* fb, unsigned char *parlcd_mem_base, int pointer, Game_Properties gp);
+    public:
+        End_Scene(){
+        counter = 0;
+        moveX = STARTX_1_M;
+        moveY = LCD_HEIGHT/4;
+        }
+
+        void end_scene_update();
+
+        void end_scenefill_array(uint16_t* fb, unsigned char *parlcd_mem_base);
+};

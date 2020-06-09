@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
 #include <random>
 
 #include "Snake_Handler.cpp"
@@ -75,6 +78,7 @@ void Food::add_new_food(){
     bool ret = true;
     while(ret){
         ret = false;
+        srand((unsigned) time(0));
         food_x = rand() %(max_x/tile_size);
         food_y = rand() %(max_y/tile_size);
         for (size_t i = 0; i < handler->size && ret==false; i++)

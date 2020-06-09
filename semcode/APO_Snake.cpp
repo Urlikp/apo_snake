@@ -25,12 +25,19 @@
 #include "mzapo_regs.h"
 #include "font_types.h"
 
+#include "Render.h"
 
 #include "input.h"
 #include "Game_Properites.h"
+
 #include "Snake.h"
 #include "Snake_Handler.cpp"
+#include "Collision.cpp"
+
 #include "Menu.h"
+#include "options.h"
+#include "end_scene.h"
+
 //#include "Snake_Computer.cpp"
 #include "Food.cpp"
 
@@ -40,12 +47,17 @@
 #define GAME_WIDTH			320
 #define GAME_HEIGHT			320
 
+
 #define SIZE_OF_SQUARE		32
 #define SIZE_OF_PIXEL		4
 
+// #define SIZE_OF_SQUARE		24
+
+
 #define WAIT_TIME			150
 
-#define YELLOW  			0x0e5f
+#define PURPLE				0x780f
+//#define YELLOW  			0x0e5f
 #define BRIGHT_RED 			0xf800
 #define BRIGHT_GREEN 		0x07e0
 #define BRIGHT_BLUE 		0x001f
@@ -55,6 +67,8 @@
 #define BRIGHT_WHITE		0xffff
 #define DARK_WHITE			0x5555
 #define BLACK 				0x0000
+#define WHITE				0xffff 
+
 
 #define LED_LINE_0			0x00000000
 #define LED_LINE_1			0xff000000
@@ -74,143 +88,143 @@ enum direction{STOP, UP, RIGHT, DOWN, LEFT};
 enum direction dir;
 bool game_running;
 
-void draw_pixel(int xTile, int yTile, uint16_t colour) 
-{
-	if (xTile>=0 && xTile<480 && yTile>=0 && yTile<320) 
-	{	
-		for (int i = yTile * SIZE_OF_PIXEL; i < SIZE_OF_PIXEL * yTile + SIZE_OF_PIXEL; i++)
-		{
-			for (int j = xTile * SIZE_OF_PIXEL; j < SIZE_OF_PIXEL * xTile + SIZE_OF_PIXEL; j++)
-			{
-				fb[LCD_WIDTH * i + j] = colour;
-			}
-		}
-	}
-}
+// void draw_pixel(int xTile, int yTile, uint16_t colour) 
+// {
+// 	if (xTile>=0 && xTile<480 && yTile>=0 && yTile<320) 
+// 	{	
+// 		for (int i = yTile * SIZE_OF_PIXEL; i < SIZE_OF_PIXEL * yTile + SIZE_OF_PIXEL; i++)
+// 		{
+// 			for (int j = xTile * SIZE_OF_PIXEL; j < SIZE_OF_PIXEL * xTile + SIZE_OF_PIXEL; j++)
+// 			{
+// 				fb[LCD_WIDTH * i + j] = colour;
+// 			}
+// 		}
+// 	}
+// }
 
-void draw_char(int xTile, int yTile, font_descriptor_t* fdes, int ch, int back, uint16_t colour) {
-	int w, bw, i, j;
-	const uint16_t *b;
-	unsigned patt = 0;
+// void draw_char(int xTile, int yTile, font_descriptor_t* fdes, int ch, int back, uint16_t colour) {
+// 	int w, bw, i, j;
+// 	const uint16_t *b;
+// 	unsigned patt = 0;
 	
-	ch -= fdes->firstchar;
-	if (!fdes->width)
-	{
-		w = fdes->maxwidth;
-	}
-	else
-	{
-		w = fdes->width[ch];
-	}
-	bw = (w + 15) / 16;
+// 	ch -= fdes->firstchar;
+// 	if (!fdes->width)
+// 	{
+// 		w = fdes->maxwidth;
+// 	}
+// 	else
+// 	{
+// 		w = fdes->width[ch];
+// 	}
+// 	bw = (w + 15) / 16;
 	
-	if (!fdes->offset)
-	{
-		b = fdes->bits + ch * bw * fdes->height;
-	}
-	else
-	{
-		b = fdes->bits + fdes->offset[ch];
-	}
+// 	if (!fdes->offset)
+// 	{
+// 		b = fdes->bits + ch * bw * fdes->height;
+// 	}
+// 	else
+// 	{
+// 		b = fdes->bits + fdes->offset[ch];
+// 	}
 	
-	for (j = 0; j < fdes->height; j++)
-	{
-		for (i = 0; i < w; i++)
-		{
-			if (!(i & 15))
-			{
-				patt = *(b++);
-			}
-			if (patt & 0x8000 || back)
-			{
-				draw_pixel(xTile + i, yTile + j, patt & 0x8000 ? colour : 0);
-			}
-			patt <<= 1;
-		}
-	}
-}
+// 	for (j = 0; j < fdes->height; j++)
+// 	{
+// 		for (i = 0; i < w; i++)
+// 		{
+// 			if (!(i & 15))
+// 			{
+// 				patt = *(b++);
+// 			}
+// 			if (patt & 0x8000 || back)
+// 			{
+// 				draw_pixel(xTile + i, yTile + j, patt & 0x8000 ? colour : 0);
+// 			}
+// 			patt <<= 1;
+// 		}
+// 	}
+// }
 
-int char_width(font_descriptor_t* fdes, int ch) 
-{
-	int width = 0;
-	if ((ch >= fdes->firstchar) && (ch-fdes->firstchar < fdes->size)) 
-	{
-		ch -= fdes->firstchar;
-		if (!fdes->width) 
-		{
-			width = fdes->maxwidth;
-		} 
-		else 
-		{
-			width = fdes->width[ch];
-		}
-	}
-	return width;
-}
+// int char_width(font_descriptor_t* fdes, int ch) 
+// {
+// 	int width = 0;
+// 	if ((ch >= fdes->firstchar) && (ch-fdes->firstchar < fdes->size)) 
+// 	{
+// 		ch -= fdes->firstchar;
+// 		if (!fdes->width) 
+// 		{
+// 			width = fdes->maxwidth;
+// 		} 
+// 		else 
+// 		{
+// 			width = fdes->width[ch];
+// 		}
+// 	}
+// 	return width;
+// }
 
-void draw_string(int xTile, int yTile, uint16_t colour, char *ch, int size_of_string)
-{
-	font_descriptor_t* fdes = &font_winFreeSystem14x16;
+// void draw_string(int xTile, int yTile, uint16_t colour, char *ch, int size_of_string)
+// {
+// 	font_descriptor_t* fdes = &font_winFreeSystem14x16;
 
-	for (int i = 0; i < size_of_string; i++) 
-	{
-		draw_char(xTile, yTile, fdes, *ch, 1, colour);
-		xTile += char_width(fdes, *ch);
-		ch++;
-	}
-}
+// 	for (int i = 0; i < size_of_string; i++) 
+// 	{
+// 		draw_char(xTile, yTile, fdes, *ch, 1, colour);
+// 		xTile += char_width(fdes, *ch);
+// 		ch++;
+// 	}
+// }
 
-void fill_unit(int xTile, int yTile, uint16_t colour)
-{
-	if (xTile >= 0 && xTile < GAME_WIDTH/SIZE_OF_SQUARE && yTile >= 0 && yTile < GAME_HEIGHT/SIZE_OF_SQUARE)
-	{
-		for (int i = yTile * SIZE_OF_SQUARE; i < SIZE_OF_SQUARE * yTile + SIZE_OF_SQUARE; i++)
-		{
-			for (int j = xTile * SIZE_OF_SQUARE; j < SIZE_OF_SQUARE * xTile + SIZE_OF_SQUARE; j++)
-			{
-				fb[LCD_WIDTH * i + j] = colour;
-			}
-		}
-	}
-}
+// void fill_unit(int xTile, int yTile, uint16_t colour)
+// {
+// 	if (xTile >= 0 && xTile < GAME_WIDTH/SIZE_OF_SQUARE && yTile >= 0 && yTile < GAME_HEIGHT/SIZE_OF_SQUARE)
+// 	{
+// 		for (int i = yTile * SIZE_OF_SQUARE; i < SIZE_OF_SQUARE * yTile + SIZE_OF_SQUARE; i++)
+// 		{
+// 			for (int j = xTile * SIZE_OF_SQUARE; j < SIZE_OF_SQUARE * xTile + SIZE_OF_SQUARE; j++)
+// 			{
+// 				fb[LCD_WIDTH * i + j] = colour;
+// 			}
+// 		}
+// 	}
+// }
 
 
-void clear_array()
-{
-	for (size_t i = 0; i < GAME_HEIGHT/SIZE_OF_SQUARE; i++)
-	{
-		for (size_t j = 0; j < GAME_WIDTH/SIZE_OF_SQUARE; j++)
-		{
-			fill_unit(j,i, BLACK);
-		}
-	}
-}
+// void clear_array()
+// {
+// 	for (size_t i = 0; i < GAME_HEIGHT/SIZE_OF_SQUARE; i++)
+// 	{
+// 		for (size_t j = 0; j < GAME_WIDTH/SIZE_OF_SQUARE; j++)
+// 		{
+// 			fill_unit(j,i, BLACK);
+// 		}
+// 	}
+// }
 
-void draw(unsigned char *parlcd_mem_base)
-{
-	printf("START of Draw\n");
-	parlcd_write_cmd(parlcd_mem_base, 0x2c);
-	for (int i = 0; i < LCD_WIDTH * LCD_HEIGHT; i++) 
-	{
-		parlcd_write_data(parlcd_mem_base, fb[i]);
-	}
-	printf("End of Draw\n");
-}
+// void draw(unsigned char *parlcd_mem_base)
+// {
+// 	printf("START of Draw\n");
+// 	parlcd_write_cmd(parlcd_mem_base, 0x2c);
+// 	for (int i = 0; i < LCD_WIDTH * LCD_HEIGHT; i++) 
+// 	{
+// 		parlcd_write_data(parlcd_mem_base, fb[i]);
+// 	}
+// 	printf("End of Draw\n");
+// }
 
-void led_line(uint32_t val_line, unsigned char *mem_base)
-{
-	*(volatile uint32_t*)(mem_base + SPILED_REG_LED_LINE_o) = val_line;
-}
+// void led_line(uint32_t val_line, unsigned char *mem_base)
+// {
+// 	*(volatile uint32_t*)(mem_base + SPILED_REG_LED_LINE_o) = val_line;
+// }
 
-void led_RGB1(uint32_t colour, unsigned char *mem_base)
-{
-	*(volatile uint32_t*)(mem_base + SPILED_REG_LED_RGB1_o) = colour;
-}
+// void led_RGB1(uint32_t colour, unsigned char *mem_base)
+// {
+// 	*(volatile uint32_t*)(mem_base + SPILED_REG_LED_RGB1_o) = colour;
+// }
 
-void led_RGB2(uint32_t colour, unsigned char *mem_base)
-{
-	*(volatile uint32_t*)(mem_base + SPILED_REG_LED_RGB2_o) = colour;
-}
+// void led_RGB2(uint32_t colour, unsigned char *mem_base)
+// {
+// 	*(volatile uint32_t*)(mem_base + SPILED_REG_LED_RGB2_o) = colour;
+// }
 
 bool is_tile_occupied(int x, int y)
 {
@@ -220,7 +234,7 @@ bool is_tile_occupied(int x, int y)
 
 void move(int *head_x, int *head_y)
 {
-	fill_unit(*head_x, *head_y, BLACK);
+	fill_unit(*head_x, *head_y, BLACK, fb);
 	switch(dir)
 	{
 	case UP:
@@ -238,7 +252,7 @@ void move(int *head_x, int *head_y)
 	default:
 		break;
 	}	
-	fill_unit(*head_x, *head_y, DARK_WHITE);
+	fill_unit(*head_x, *head_y, DARK_WHITE, fb);
 	if ((*head_x) < 0 || (*head_x) >= GAME_WIDTH/SIZE_OF_SQUARE || (*head_y) < 0 || (*head_y) >= GAME_HEIGHT/SIZE_OF_SQUARE)
 	{
 		game_running = false;
@@ -333,79 +347,121 @@ int main(int argc, char *argv[])
 	{
 		exit(1);
 	}
-
-
-	/*
+	uint16_t snake_1_color = DARK_GREEN;
+	uint16_t snake_2_color = DARK_BLUE;
+	Menu_Options menu_options = Menu_Options();
+	PrepareKeyboardTtySettings();
 	Game_Properties game_properties{GAME_WIDTH, GAME_HEIGHT, SIZE_OF_SQUARE, LCD_WIDTH, LCD_HEIGHT};
 	game_running = true;
 	gm_state = Menu;
 	int  marked_item= 1;
 	int counter2 = 0;
+	clear_array(BLACK, fb);
 	while (game_running){
 		while(gm_state==Menu || gm_state== Options){
+			clear_array(BLACK, fb);
 			if(kbhit()){
-				int select = menu_selection(getch(), marked_item);
-				printf("pointer to: %d\n", marked_item);
-				printf("chosen: %d\n",select);
-				if(select!=0){
-					switch (select)
-					{
-					case 1:
-						printf("SELECT GAME DEMO\n");
-						gm_state = Demo;
-						break;
-					case 2:
-						printf("SELECT GAME STANDARD\n");
-						gm_state = Standard;
-						exit(0);
-						break;
+				if(gm_state==Menu){
+					int select = menu_selection(getch(), marked_item);
+					printf("pointer to: %d\n", marked_item);
+					printf("chosen: %d\n",select);
+					if(select!=0){
+						switch (select)
+						{
+						case 1:
+							printf("SELECT GAME DEMO\n");
+							gm_state = Demo;
+							break;
+						case 2:
+							printf("SELECT GAME STANDARD\n");
+							gm_state = Standard;
+							exit(0);
+							break;
 
-					case 3:
-						printf("SELECT OPTIONS\n");
-						gm_state = Options;
-						exit(0);
-						break;
-					case 4:
-						printf("SELECT END\n");
-						gm_state = End;
-						game_running = false;
-						break;
+						case 3:
+							printf("SELECT OPTIONS\n");
+							gm_state = Options;
+							break;
+						case 4:
+							printf("SELECT END!\n");
+							gm_state = End;
+							game_running = false;
+							break;
+						}
+						select = 0;
+					}
+				}else if (gm_state == Options){
+					int pointer = 1;
+					int speed =1;
+					int size_of_tile = 32;
+					uint16_t snake_color1;
+					uint16_t snake_color2;
+					int select = menu_options.options_selection(getch(),pointer, speed, size_of_tile, snake_1_color, snake_2_color);
+					printf("speed %d, %d, %x, %x\n", speed, size_of_tile, snake_1_color, snake_2_color);
+					if (select ==1){
+						gm_state = Menu;
 					}
 				}
 			}
+			if(gm_state == Options){
+				menu_options.options_fill_array(fb, parlcd_mem_base, game_properties);
+			}else{
+				menu_fill_array(fb, parlcd_mem_base, marked_item, game_properties);
+			}
+			draw(parlcd_mem_base, fb);
+			//parlcd_delay(100);
 		}
 		if (gm_state == Demo){
-			clear_array();
+			clear_array(BLACK, fb);
 			Snake_Handler handler = Snake_Handler();
-			Snake sn = Snake(2, 2, DARK_GREEN, game_properties);
-			//Snake sn2 = Snake(9, 9, DARK_BLUE, game_properties);
-			//sn.set_opposite_snake(&sn2);
-			//sn2.set_opposite_snake(&sn);
+			Snake sn = Snake(2, 2, snake_1_color, game_properties);
+			Snake sn2 = Snake(9, 9, snake_2_color, game_properties);
+			sn.set_opposite_snake(&sn2);
+			sn2.set_opposite_snake(&sn);
+	
+			handler.add_snake(&sn2);
 			handler.add_snake(&sn);
-			//handler.add_snake(&sn2);
-			Food food = Food(&handler, 5, 5, 3, DARK_RED, GAME_WIDTH, GAME_HEIGHT, SIZE_OF_SQUARE);
+			Food food = Food(&handler, 5, 5, 3, WHITE, GAME_WIDTH, GAME_HEIGHT, SIZE_OF_SQUARE);
 			food.fill_array(fb,LCD_WIDTH);
 			handler.fill_array(fb, LCD_WIDTH);
-			draw(parlcd_mem_base);
+			draw(parlcd_mem_base, fb);
 			parlcd_delay(WAIT_TIME);
 			while(gm_state == Demo){
 				food.update();
 				handler.update();
-
-				food.fill_array(fb,LCD_WIDTH);
-				handler.fill_array(fb, LCD_WIDTH);
-				draw(parlcd_mem_base);
-				parlcd_delay(WAIT_TIME);
-				counter2++;
-				if(counter2 > 50){
-					printf("SNAKES ENDED\n");
+				if(collision_update(handler, game_properties)){
+					clear_array(BLACK, fb);
+					handler.delete_snakes();
 					gm_state = Menu;
+				}else{
+					food.fill_array(fb,LCD_WIDTH);
+					handler.fill_array(fb, LCD_WIDTH);
+
+					draw(parlcd_mem_base, fb);
+					parlcd_delay(WAIT_TIME);
+					counter2++;
+					if(counter2 > 150){
+						counter2 = 0;
+						printf("SNAKES ENDEDss\n");
+						gm_state = Menu;
+					}
 				}
 			}	
 		}
 	}
-	*/
-
+	printf("ZDE\n");
+	End_Scene es = End_Scene();
+	for(int i = 0; i < 500; i++){
+		if(kbhit()){
+			if(getch()=='x'){
+				break;
+			}
+		}
+		es.end_scene_update();
+		clear_array(BLACK, fb);
+		es.end_scenefill_array(fb, parlcd_mem_base);
+		draw(parlcd_mem_base, fb);
+	}
 
 
 
@@ -629,16 +685,52 @@ int main(int argc, char *argv[])
 	// draw(parlcd_mem_base);
 	
 	
-	int xTile = 10, yTile = 10;
-	char str[]="Goodbye world";
+	int xTile = 2, yTile = 10;
+	char str[]="HA ";
 	int size_of_str = 0;
 	while (str[size_of_str] != 0)
 	{
 		size_of_str++;
 	}
 	char *begin = str;
-	draw_string(xTile, yTile, DARK_WHITE, begin, size_of_str);
-	draw(parlcd_mem_base);
+	draw_string(xTile, yTile, PURPLE, begin, size_of_str, fb);
+	draw(parlcd_mem_base, fb);
+	parlcd_delay(100);
+
+	// int xTile2 = 10, yTile2 = 30;
+	// char str2[]="PLAY DEMO";
+	// int size_of_str2 = 0;
+	// while (str2[size_of_str2] != 0)
+	// {
+	// 	size_of_str2++;
+	// }
+	// char *begin2 = str2;
+	// draw_string(xTile2, yTile2, DARK_BLUE, begin2, size_of_str2);
+	// draw(parlcd_mem_base);
+
+	// xTile2 = 10; yTile2 = 50;
+	// char str3[] = "PLAY STANDARD";
+	// size_of_str2 = 0;
+	// while (str3[size_of_str2] != 0)
+	// {
+	// 	size_of_str2++;
+	// }
+	// begin2 = str3;
+	// draw_string(xTile2, yTile2, DARK_BLUE, begin2, size_of_str2);
+	// for(int i = 0; i<100; i++){
+	// 	draw_pixel(i,2, PURPLE);
+	// }
+	// for(int i=1; i<120; i++){
+	// 	printf("1: %d\n", (int)(-round(sin((5*(i*M_PI/45))))+40));
+	// 	printf("2: %d\n", (int)(-round(7*sin((i*M_PI)/180))+40));
+	// 	draw_pixel(i, (int)(-round(10*sin((2*(i*M_PI/45))))+40), 0xffff);
+	// 	//draw_pixel(i, (int)(-round(10*log((2*(i*M_PI/45))))+40), 0xffff);
+		
+	// 	draw_pixel(i,40,PURPLE);
+	// }
+	
+	draw(parlcd_mem_base, fb);
+
 	//handler.delete_snakes();
 	free(fb);
 	return 0;

@@ -55,6 +55,49 @@ int menu_selection(char key_pressed, int& pointer){
     return return_value;
 }
 
-void menu_fill_array(uint16_t* fb, int& pointer, int color1, int color2, Game_Properties gp){
+void menu_fill_array(uint16_t* fb, unsigned char *parlcd_mem_base, int pointer, Game_Properties gp){
+    uint16_t colors[2] = {BASE_COLOR, BASE_COLOR};
+    colors[pointer%2] = SELECT_COLOR;
+    
+    //GAME NAME
+    int xTile = STARTX_1_M, yTile = 5;
+    char str[]="S N A K E";
+    int size_of_str = 0;
+    while (str[size_of_str] != 0){size_of_str++;}
+    char *begin = str;
+    draw_rect(STARTX_M, 0, WIDTH_M, HEIGHT_M, 3*BORDER_M, BASE_COLOR, fb);
+    draw_string(xTile, yTile, BASE_COLOR, begin, size_of_str, fb);
 
+    //MENU ITEMS
+    if(pointer <=2){
+        int xTile = STARTX_1_M, yTile = STARTY_1_M;
+        char str[]="DEMO";
+        int size_of_str = 0;
+        while (str[size_of_str] != 0){size_of_str++;}
+        char *begin = str;
+        draw_string(xTile, yTile, colors[1], begin, size_of_str, fb);
+        draw_rect(STARTX_M, STARTY_M, WIDTH_M, HEIGHT_M, BORDER_M, colors[1], fb);
+        xTile = STARTX_1_M; yTile = STARTY_2_M;
+        char str2[]="STANDARD";
+        size_of_str = 0;
+        while (str2[size_of_str] != 0){size_of_str++;}
+        begin = str2;
+        draw_string(xTile, yTile, colors[0], begin, size_of_str, fb);
+        draw_rect(STARTX_M, STARTY_M+HEIGHT_M, WIDTH_M, HEIGHT_M, BORDER_M, colors[0], fb);
+    }else if(pointer <=4){
+        int xTile = STARTX_1_M, yTile = STARTY_1_M;
+        char str[]="OPTIONS";
+        int size_of_str = 0;
+        while (str[size_of_str] != 0){size_of_str++;}
+        char *begin = str;
+        draw_string(xTile, yTile, colors[1], begin, size_of_str, fb);
+        draw_rect(STARTX_M, STARTY_M, WIDTH_M, HEIGHT_M, BORDER_M, colors[1], fb);
+        xTile = STARTX_1_M; yTile = STARTY_2_M;
+        char str2[]="QUIT";
+        size_of_str = 0;
+        while (str2[size_of_str] != 0){size_of_str++;}
+        begin = str2;
+        draw_string(xTile, yTile, colors[0], begin, size_of_str, fb);
+        draw_rect(STARTX_M, STARTY_M+HEIGHT_M, WIDTH_M, HEIGHT_M, BORDER_M, colors[0], fb);
+    } 
 }
