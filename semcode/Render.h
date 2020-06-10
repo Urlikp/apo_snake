@@ -10,8 +10,8 @@
 #include "mzapo_regs.h"
 #include "font_types.h"
 
-#define DAY_MODE
-//#define NIGHT_MODE
+//#define DAY_MODE
+#define NIGHT_MODE
 
 
 #define LCD_WIDTH			480

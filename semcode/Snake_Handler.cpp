@@ -35,12 +35,8 @@ class Snake_Handler{
             snakes.clear();
         }
         void add_snake(Snake* snake){
-            //if(size<MAXIMUM_OF_SNAKES){
-                size++;
-                snakes.emplace_back(snake);
-            //}else{
-            ///fprintf(stderr, "Cannot add more snakes!\n");
-            //}
+            size++;
+            snakes.emplace_back(snake);
         }
         void update(){
             for (size_t i = 0; i < size; i++)
