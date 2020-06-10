@@ -3,6 +3,7 @@
 
 #include "Snake_Handler.cpp"
 #include "Render.h"
+#include <time.h>
 
 #define BASE_COLOR_S BASE_COLOR
 
@@ -19,6 +20,7 @@ class Score{
         int score_2;
         uint16_t color_1;
         uint16_t color_2;
+		struct timespec begin_clock, end_clock;
     public:
 
         /*

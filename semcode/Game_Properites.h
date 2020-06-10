@@ -11,6 +11,7 @@ typedef struct Game_Properties{
     int size_of_tile;
     int LCD_width;
     int LCD_height;
+    int speed;
 }Game_Properties;
 
 #endif

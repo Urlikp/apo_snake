@@ -39,7 +39,7 @@ int Menu_Options::options_selection(char key_pressed, int& pointer,  int& speed,
         {
             case 1:
                 speed++;
-                if(speed>4){
+                if(speed>5){
                     speed=1;
                 }
                 copy_speed = speed;

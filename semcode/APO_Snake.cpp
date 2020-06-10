@@ -54,10 +54,10 @@
 #define SIZE_OF_SQUARE		32
 #define SIZE_OF_PIXEL		4
 
-// #define SIZE_OF_SQUARE		24
+#define SPEED				1
 
 
-#define WAIT_TIME			100
+#define WAIT_TIME			1000
 
 
 // #define PURPLE				0x780f
@@ -115,8 +115,10 @@ void update_demo_mode(Score* score, Game_Properties game_properties){
 	Food food = Food(&handler, 5, 5, 3, FOOD_COLOR, GAME_WIDTH, GAME_HEIGHT, game_properties.size_of_tile);
 	food.fill_array(fb,LCD_WIDTH);
 	handler.fill_array(fb, LCD_WIDTH);
+	score->reset();
+	score->score_fill_array(fb, parlcd_mem_base);
 	draw(parlcd_mem_base, fb);
-	parlcd_delay(WAIT_TIME);
+	parlcd_delay(WAIT_TIME/game_properties.speed);
 	int counter = 0;
 	while(gm_state == Demo){
 		food.update();
@@ -132,7 +134,7 @@ void update_demo_mode(Score* score, Game_Properties game_properties){
 			score->score_fill_array(fb, parlcd_mem_base);
 
 			draw(parlcd_mem_base, fb);
-			parlcd_delay(WAIT_TIME);
+			parlcd_delay(WAIT_TIME/game_properties.speed);
 			counter++;
 			if(counter > 400){
 				clear_array(BLACK, fb);
@@ -140,6 +142,12 @@ void update_demo_mode(Score* score, Game_Properties game_properties){
 				printf("SNAKES ENDED!\n");
 				gm_state = GameOver;
 			}
+		}
+		if(kbhit() && getch()=='x'){
+			gm_state = GameOver;
+			clear_array(BLACK, fb);
+			led_RGB1(LED_RED, mem_base);
+			led_RGB2(LED_RED, mem_base);
 		}
 	}	
 }
@@ -255,6 +263,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	PrepareKeyboardTtySettings();
 	// game_over_fill_array(fb, parlcd_mem_base, 99, 99,BRIGHT_GREEN, BRIGHT_RED);
 	// draw(parlcd_mem_base, fb);
 
@@ -285,14 +294,11 @@ int main(int argc, char *argv[])
 		parlcd_delay(50);
 	}
 		
-	PrepareKeyboardTtySettings();
 	gm_state = Menu;
 	Score score = Score();
 	Game_Menu menu = Game_Menu();
 	Menu_Options menu_options = Menu_Options();
-	Game_Properties game_properties{GAME_WIDTH, GAME_HEIGHT, SIZE_OF_SQUARE, LCD_WIDTH, LCD_HEIGHT};
-
-	int speed = 1;
+	Game_Properties game_properties{GAME_WIDTH, GAME_HEIGHT, SIZE_OF_SQUARE, LCD_WIDTH, LCD_HEIGHT, SPEED};
 
 	int  marked_item= 1;
 	int counter2 = 0;
@@ -328,7 +334,7 @@ int main(int argc, char *argv[])
 					}
 				}else if (gm_state == Options){
 					int pointer = 1;
-					int select = menu_options.options_selection(getch(),pointer, speed, game_properties.size_of_tile, snake_1_color, snake_2_color);
+					int select = menu_options.options_selection(getch(),pointer, game_properties.speed, game_properties.size_of_tile, snake_1_color, snake_2_color);
 					if (select ==1){
 						gm_state = Menu;
 					}

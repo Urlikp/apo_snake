@@ -12,7 +12,6 @@
 
 #define DELETE_COLOR 0x0000
 
-
 using namespace std;
 
 #include "Snake_Tile.h"
@@ -69,6 +68,7 @@ class Snake{
         void is_possible_move();
         float calculate_distance_to_food();
         void set_moves();
+        bool is_tile_occupied(int x, int y);
 
     public:
     //PUBLIC FUNCITONS

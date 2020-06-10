@@ -318,9 +318,74 @@ bool Snake::die(int move_x, int move_y){
     return false;
 }
 
+bool Snake::is_tile_occupied(int x, int y)
+{
+	for (size_t i = 0; i < size - 1; i++)
+	{
+		if (get_tile(i).get_x() == x && get_tile(i).get_y() == y)
+		{
+			return true;
+		}
+	}
+	for (size_t i = 0; i < opponent_snake->size; i++)
+	{
+		if (opponent_snake->get_tile(i).get_x() == x && opponent_snake->get_tile(i).get_y() == y)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 Snake_Tile::Direction Snake::choose_move2(){
     Snake_Tile::Direction selected_dir = Snake_Tile::NONE;
-    float control = 10000;
+    int closest = 69;
+    Snake_Tile my_head = get_tile(0);
+    
+    for (int dirInt = Snake_Tile::UP; dirInt != Snake_Tile::NONE; dirInt++)
+    {
+        Snake_Tile::Direction new_dir = static_cast<Snake_Tile::Direction> (dirInt);
+        if (is_new_direction_correct(new_dir,dir))
+        {
+        	int head_x = my_head.get_x(), head_y = my_head.get_y();
+        	switch(new_dir)
+			{
+			case Snake_Tile::UP:
+				(head_y)--;
+				break;
+			case Snake_Tile::RIGHT:
+				(head_x)++;
+				break;
+			case Snake_Tile::DOWN:
+				(head_y)++;
+				break;
+			case Snake_Tile::LEFT:
+				(head_x)--;
+				break;
+			}
+			if (head_x >= 0 && head_x < gm.game_width/gm.size_of_tile && head_y >= 0 && head_y < gm.game_height/gm.size_of_tile)
+			{
+				if (!is_tile_occupied(head_x, head_y))
+				{
+					int new_diff_x = food_x - head_x;
+					int new_diff_y = food_y - head_y;
+					float new_distance = (float) sqrt(pow(new_diff_x,2)+pow(new_diff_y,2));
+					if (closest >=  new_distance)
+					{
+						closest = new_distance;
+						selected_dir = new_dir;
+					}
+				}
+			}
+        }
+    }
+    if (selected_dir == Snake_Tile::NONE)
+    {
+        selected_dir = dir;
+        printf("SET BASE\n");
+    }
+        
+    /*float control = 10000;
     for (int dirInt = Snake_Tile::UP; dirInt!=Snake_Tile::NONE; dirInt++){
         Snake_Tile::Direction new_dir = static_cast<Snake_Tile::Direction> (dirInt);
         if (is_new_direction_correct(new_dir,dir))
@@ -350,7 +415,7 @@ Snake_Tile::Direction Snake::choose_move2(){
     if (selected_dir == Snake_Tile::NONE){
         selected_dir = Snake_Tile::LEFT;
         printf("SET BASE\n");
-    }
+    }*/
     return selected_dir;
 }
 
