@@ -14,51 +14,59 @@
 
 #include "Menu.h"
 
-//pointer is for rendering to show which item could be selected to know 
-// player where his cursor in menu is.
-int menu_selection(char key_pressed, int& pointer){
+
+/*
+
+    All funcitons described in Menu.c
+
+*/
+
+int Game_Menu::menu_selection(char key_pressed){
     int return_value = 0;
     int number_of_items = 4;
-    int pointer_to_item = pointer;
+    // int pointer_to_item = pointer;
     
     if (key_pressed == 'f'){
         printf("select\n");
-        return_value = pointer_to_item;
+        return_value = pointer;
     }
 
     if (key_pressed == 'w'){
         printf("move up\n");
-        pointer_to_item--;
+        pointer--;
+        printf("%d\n", pointer);
     }
 
     if (key_pressed == 's'){
         printf("move down\n");
-        pointer_to_item++;
+        pointer++;
+        printf("%d\n", pointer);
     }
     
     if (key_pressed == 'x'){
         fprintf(stderr,"Game has been ended!\n");
-        exit(0);
+        //exit(0);
+        return_value = 4;
     }
     
-    if (pointer_to_item<1)
+    if (pointer<1)
     {
         printf("switched\n");
-        pointer_to_item = number_of_items;
+        pointer = number_of_items;
     }
 
-    if(pointer_to_item>4){
+    if(pointer>number_of_items){
         printf("switched2\n");
-        pointer_to_item = 1;
+        pointer = 1;
     }
-    pointer = pointer_to_item;
+   // pointer = pointer;
     return return_value;
 }
 
-void menu_fill_array(uint16_t* fb, unsigned char *parlcd_mem_base, int pointer, Game_Properties gp){
+void Game_Menu::menu_fill_array(uint16_t* fb, unsigned char *parlcd_mem_base,Game_Properties gp){
     uint16_t colors[2] = {BASE_COLOR, BASE_COLOR};
     colors[pointer%2] = SELECT_COLOR;
-    
+    printf("RENDER%d\n", pointer);
     //GAME NAME
     int xTile = STARTX_1_M, yTile = 5;
     char str[]="S N A K E";
@@ -67,7 +75,7 @@ void menu_fill_array(uint16_t* fb, unsigned char *parlcd_mem_base, int pointer, 
     char *begin = str;
     draw_rect(STARTX_M, 0, WIDTH_M, HEIGHT_M, 3*BORDER_M, BASE_COLOR, fb);
     draw_string(xTile, yTile, BASE_COLOR, begin, size_of_str, fb);
-
+    printf("RENDER%d\n", pointer);
     //MENU ITEMS
     if(pointer <=2){
         int xTile = STARTX_1_M, yTile = STARTY_1_M;
@@ -84,6 +92,7 @@ void menu_fill_array(uint16_t* fb, unsigned char *parlcd_mem_base, int pointer, 
         begin = str2;
         draw_string(xTile, yTile, colors[0], begin, size_of_str, fb);
         draw_rect(STARTX_M, STARTY_M+HEIGHT_M, WIDTH_M, HEIGHT_M, BORDER_M, colors[0], fb);
+
     }else if(pointer <=4){
         int xTile = STARTX_1_M, yTile = STARTY_1_M;
         char str[]="OPTIONS";
@@ -100,4 +109,5 @@ void menu_fill_array(uint16_t* fb, unsigned char *parlcd_mem_base, int pointer, 
         draw_string(xTile, yTile, colors[0], begin, size_of_str, fb);
         draw_rect(STARTX_M, STARTY_M+HEIGHT_M, WIDTH_M, HEIGHT_M, BORDER_M, colors[0], fb);
     } 
+        printf("RENDER%d\n", pointer);
 }

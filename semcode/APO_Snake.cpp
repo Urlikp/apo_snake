@@ -30,16 +30,19 @@
 #include "input.h"
 #include "Game_Properites.h"
 
-#include "Snake.h"
+#include "Snake.cpp"
 #include "Snake_Handler.cpp"
+#include "Food.cpp"
 #include "Collision.cpp"
 
 #include "Menu.h"
 #include "options.h"
 #include "end_scene.h"
+#include "score.h"
+#include "game_over.h"
 
 //#include "Snake_Computer.cpp"
-#include "Food.cpp"
+
 
 
 #define LCD_WIDTH			480
@@ -301,17 +304,6 @@ void input()
 int main(int argc, char *argv[])
 {
 
-	// gm_state = Menu;
-	// Snake_Handler handler = Snake_Handler();
-	// Snake sn = Snake(2, 2, DARK_GREEN, game_properties);
-	// Snake sn2 = Snake(9, 9, DARK_BLUE, game_properties);
-	// //Snake sn3 = Snake(0, 9, YELLOW, game_properties);
-	// sn.set_opposite_snake(&sn2);
-	// sn2.set_opposite_snake(&sn);
-	// handler.add_snake(&sn);
-	// handler.add_snake(&sn2);
-	//handler.add_snake(&sn3);
-
 	/*
 	int head_x, head_y;
 	uint32_t val_line = 0xffffffff;
@@ -332,14 +324,14 @@ int main(int argc, char *argv[])
 	}
 	parlcd_hx8357_init(parlcd_mem_base);
 	
-	/*
+
 	unsigned char *mem_base;
 	mem_base = map_phys_address(SPILED_REG_BASE_PHYS, SPILED_REG_SIZE, 0);
 	if (mem_base == NULL)
     {
     	exit(1);
 	}
-	*/
+
 	
 
 	fb = (uint16_t *)malloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t));
@@ -347,57 +339,77 @@ int main(int argc, char *argv[])
 	{
 		exit(1);
 	}
-	uint16_t snake_1_color = DARK_GREEN;
-	uint16_t snake_2_color = DARK_BLUE;
-	Menu_Options menu_options = Menu_Options();
+
+	game_over_fill_array(fb, parlcd_mem_base, 99, 99,BRIGHT_GREEN, BRIGHT_RED);
+	draw(parlcd_mem_base, fb);
+	bool end = true;
+	int pointer = 1;
+	bool jump = true;
+	while(end){
+		if(kbhit() && getch()=='x'){
+			end = false;
+		}
+		for(int i=0; i<120; i++){
+			if(i>=(pointer-1)*10 && i< pointer*10){
+				draw_pixel(i, (int)(-round(10*sin((2*(i*M_PI/45))))+40), BRIGHT_WHITE, fb);
+			}else{
+				draw_pixel(i, (int)(-round(10*sin((2*(i*M_PI/45))))+40), DARK_WHITE, fb);
+			}
+			draw_pixel(i,40,0x3333,fb);
+		}
+		pointer = (jump) ? pointer +1: pointer -1;
+		jump = (pointer==120/10) ? false : true;
+		draw(parlcd_mem_base, fb);
+
+		parlcd_delay(50);
+	}
+		
 	PrepareKeyboardTtySettings();
-	Game_Properties game_properties{GAME_WIDTH, GAME_HEIGHT, SIZE_OF_SQUARE, LCD_WIDTH, LCD_HEIGHT};
-	game_running = true;
 	gm_state = Menu;
+	Score score = Score();
+	Game_Menu menu = Game_Menu();
+	Menu_Options menu_options = Menu_Options();
+	Game_Properties game_properties{GAME_WIDTH, GAME_HEIGHT, SIZE_OF_SQUARE, LCD_WIDTH, LCD_HEIGHT};
+	uint16_t snake_1_color = SNAKE_1_COLOR;
+	uint16_t snake_2_color = SNAKE_2_COLOR;
+
+
 	int  marked_item= 1;
 	int counter2 = 0;
 	clear_array(BLACK, fb);
+	draw(parlcd_mem_base, fb);
+	game_running = true;
 	while (game_running){
 		while(gm_state==Menu || gm_state== Options){
 			clear_array(BLACK, fb);
 			if(kbhit()){
 				if(gm_state==Menu){
-					int select = menu_selection(getch(), marked_item);
-					printf("pointer to: %d\n", marked_item);
-					printf("chosen: %d\n",select);
-					if(select!=0){
-						switch (select)
-						{
-						case 1:
-							printf("SELECT GAME DEMO\n");
-							gm_state = Demo;
-							break;
-						case 2:
-							printf("SELECT GAME STANDARD\n");
-							gm_state = Standard;
-							exit(0);
-							break;
+					switch (menu.menu_selection(getch()))
+					{
+					case 1:
+						printf("SELECT GAME DEMO\n");
+						gm_state = Demo;
+						break;
+					case 2:
+						printf("SELECT GAME STANDARD\n");
+						gm_state = Standard;
+						exit(1); //doesnt work yet
+						break;
 
-						case 3:
-							printf("SELECT OPTIONS\n");
-							gm_state = Options;
-							break;
-						case 4:
-							printf("SELECT END!\n");
-							gm_state = End;
-							game_running = false;
-							break;
-						}
-						select = 0;
+					case 3:
+						printf("SELECT OPTIONS\n");
+						gm_state = Options;
+						break;
+					case 4:
+						printf("SELECT END!\n");
+						gm_state = End;
+						game_running = false;
+						break;
 					}
 				}else if (gm_state == Options){
 					int pointer = 1;
 					int speed =1;
-					int size_of_tile = 32;
-					uint16_t snake_color1;
-					uint16_t snake_color2;
-					int select = menu_options.options_selection(getch(),pointer, speed, size_of_tile, snake_1_color, snake_2_color);
-					printf("speed %d, %d, %x, %x\n", speed, size_of_tile, snake_1_color, snake_2_color);
+					int select = menu_options.options_selection(getch(),pointer, speed, game_properties.size_of_tile, snake_1_color, snake_2_color);
 					if (select ==1){
 						gm_state = Menu;
 					}
@@ -405,23 +417,23 @@ int main(int argc, char *argv[])
 			}
 			if(gm_state == Options){
 				menu_options.options_fill_array(fb, parlcd_mem_base, game_properties);
-			}else{
-				menu_fill_array(fb, parlcd_mem_base, marked_item, game_properties);
+			}else if (gm_state == Menu){
+				menu.menu_fill_array(fb, parlcd_mem_base, game_properties);
 			}
 			draw(parlcd_mem_base, fb);
 			//parlcd_delay(100);
 		}
 		if (gm_state == Demo){
+			score.reset();
 			clear_array(BLACK, fb);
 			Snake_Handler handler = Snake_Handler();
 			Snake sn = Snake(2, 2, snake_1_color, game_properties);
 			Snake sn2 = Snake(9, 9, snake_2_color, game_properties);
 			sn.set_opposite_snake(&sn2);
 			sn2.set_opposite_snake(&sn);
-	
 			handler.add_snake(&sn2);
 			handler.add_snake(&sn);
-			Food food = Food(&handler, 5, 5, 3, WHITE, GAME_WIDTH, GAME_HEIGHT, SIZE_OF_SQUARE);
+			Food food = Food(&handler, 5, 5, 3, FOOD_COLOR, GAME_WIDTH, GAME_HEIGHT, game_properties.size_of_tile);
 			food.fill_array(fb,LCD_WIDTH);
 			handler.fill_array(fb, LCD_WIDTH);
 			draw(parlcd_mem_base, fb);
@@ -429,6 +441,7 @@ int main(int argc, char *argv[])
 			while(gm_state == Demo){
 				food.update();
 				handler.update();
+				score.update(handler);
 				if(collision_update(handler, game_properties)){
 					clear_array(BLACK, fb);
 					handler.delete_snakes();
@@ -436,77 +449,81 @@ int main(int argc, char *argv[])
 				}else{
 					food.fill_array(fb,LCD_WIDTH);
 					handler.fill_array(fb, LCD_WIDTH);
+					score.score_fill_array(fb, parlcd_mem_base);
 
 					draw(parlcd_mem_base, fb);
 					parlcd_delay(WAIT_TIME);
 					counter2++;
 					if(counter2 > 150){
 						counter2 = 0;
-						printf("SNAKES ENDEDss\n");
+						printf("SNAKES EnDED!\n");
+						gm_state = Menu;
+					}
+				}
+			}	
+		}
+		if (gm_state == Standard){
+			score.reset();
+			clear_array(BLACK, fb);
+			Snake_Handler handler = Snake_Handler();
+			Snake sn = Snake(2, 2, snake_1_color, game_properties);
+			Food food = Food(&handler, 5, 5, 3, FOOD_COLOR, GAME_WIDTH, GAME_HEIGHT, game_properties.size_of_tile);
+			food.fill_array(fb,LCD_WIDTH);
+			handler.fill_array(fb, LCD_WIDTH);
+			draw(parlcd_mem_base, fb);
+			parlcd_delay(WAIT_TIME);
+			while(gm_state == Standard){
+				food.update();
+				handler.update();
+				//score.update(handler);
+				if(collision_update(handler, game_properties)){
+					clear_array(BLACK, fb);
+					handler.delete_snakes();
+					gm_state = Menu;
+				}else{
+					food.fill_array(fb,LCD_WIDTH);
+					handler.fill_array(fb, LCD_WIDTH);
+					score.score_fill_array(fb, parlcd_mem_base);
+
+					draw(parlcd_mem_base, fb);
+					parlcd_delay(WAIT_TIME);
+					counter2++;
+					if(counter2 > 150){
+						counter2 = 0;
+						printf("SNAKES EDED!\n");
 						gm_state = Menu;
 					}
 				}
 			}	
 		}
 	}
-	printf("ZDE\n");
+
+
 	End_Scene es = End_Scene();
-	for(int i = 0; i < 500; i++){
-		if(kbhit()){
-			if(getch()=='x'){
-				break;
-			}
+	for(int i = 0; i < es.get_max(); i++){
+		if(kbhit() && getch()=='x'){
+			break;
 		}
 		es.end_scene_update();
 		clear_array(BLACK, fb);
 		es.end_scenefill_array(fb, parlcd_mem_base);
 		draw(parlcd_mem_base, fb);
 	}
+	led_RGB2(LED_PINK, mem_base);
+	led_RGB1(LED_PINK, mem_base);
+	parlcd_delay(WAIT_TIME); 
+	clear_array(BLACK, fb);
+	draw(parlcd_mem_base, fb);
+	parlcd_delay(WAIT_TIME);
+	led_RGB2(LED_BLACK, mem_base);
+	led_RGB1(LED_BLACK, mem_base);
+
+
+	free(fb);
+	return 0;
 
 
 
-	// food.fill_array(fb,LCD_WIDTH);
-	// handler.fill_array(fb, LCD_WIDTH);
-	// draw(parlcd_mem_base);
-	// parlcd_delay(WAIT_TIME);
-
-
-	// for (size_t i = 0; i < 110; i++)
-	// {
-
-	// 	food.update();
-	// 	handler.update();
-
-	// 	food.fill_array(fb,LCD_WIDTH);
-	// 	handler.fill_array(fb, LCD_WIDTH);
-	// 	draw(parlcd_mem_base);
-	// 	parlcd_delay(WAIT_TIME);
-
-	// }
-	
-
-
-
-
-	//fill_unit(head_x, head_y, WHITE);
-	//draw(parlcd_mem_base);
-		//clear_array();
-		//sn.update(foodX, foodY);
-		//fill_unit_border(foodX,foodY, 3, WHITE);
-		//sn.fill_array(fb,LCD_WIDTH);
-		// if((sn.get_snake_tiles())[0].get_x()== foodX && (sn.get_snake_tiles())[0].get_y()==foodY && counter==0){
-		// 	printf("HERE\n");
-		// 	counter++;
-		// 	foodX = 9;
-		// 	foodY = 5;
-		// 	sn.add_snake_tile();
-		// 	fill_unit_border(foodX,foodY, 3, WHITE);
-		// }
-
-	
-	
-
-	/*
 	led_RGB2(LED_RED, mem_base); 
 	parlcd_delay(2*WAIT_TIME);
 	led_RGB1(LED_RED, mem_base); 
@@ -522,7 +539,7 @@ int main(int argc, char *argv[])
 	led_RGB1(LED_BLACK, mem_base);
 	led_RGB2(LED_BLACK, mem_base); 
 	parlcd_delay(2*WAIT_TIME);
-	*/
+
 	
 	//PrepareKeyboardTtySettings();
 	
@@ -685,17 +702,17 @@ int main(int argc, char *argv[])
 	// draw(parlcd_mem_base);
 	
 	
-	int xTile = 2, yTile = 10;
-	char str[]="HA ";
-	int size_of_str = 0;
-	while (str[size_of_str] != 0)
-	{
-		size_of_str++;
-	}
-	char *begin = str;
-	draw_string(xTile, yTile, PURPLE, begin, size_of_str, fb);
-	draw(parlcd_mem_base, fb);
-	parlcd_delay(100);
+	// int xTile = 2, yTile = 10;
+	// char str[]="HA ";
+	// int size_of_str = 0;
+	// while (str[size_of_str] != 0)
+	// {
+	// 	size_of_str++;
+	// }
+	// char *begin = str;
+	// draw_string(xTile, yTile, PURPLE, begin, size_of_str, fb);
+	// draw(parlcd_mem_base, fb);
+	// parlcd_delay(100);
 
 	// int xTile2 = 10, yTile2 = 30;
 	// char str2[]="PLAY DEMO";
@@ -729,7 +746,6 @@ int main(int argc, char *argv[])
 	// 	draw_pixel(i,40,PURPLE);
 	// }
 	
-	draw(parlcd_mem_base, fb);
 
 	//handler.delete_snakes();
 	free(fb);

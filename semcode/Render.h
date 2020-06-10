@@ -3,11 +3,16 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 
 #include "mzapo_parlcd.h"
 #include "mzapo_phys.h"
 #include "mzapo_regs.h"
 #include "font_types.h"
+
+//#define DAY_MODE
+#define NIGHT_MODE
+
 
 #define LCD_WIDTH			480
 #define LCD_HEIGHT			320
@@ -49,7 +54,24 @@
 #define LED_GREEN			0x00ff00
 #define LED_BLUE			0x0000ff
 #define LED_BLACK			0x000000
+#define LED_PINK            0xec00f8
+#define LED_PURPLE          0x8600FF
 
+#ifdef NIGHT_MODE
+#define SNAKE_1_COLOR DARK_GREEN
+#define SNAKE_2_COLOR DARK_BLUE 
+#define SELECT_COLOR BRIGHT_RED
+#define BASE_COLOR DARK_RED
+#define FOOD_COLOR DARK_RED
+#endif
+
+#ifdef DAY_MODE
+#define SNAKE_1_COLOR BRIGHT_GREEN
+#define SNAKE_2_COLOR BRIGHT_BLUE
+#define SELECT_COLOR BRIGHT_WHITE
+#define BASE_COLOR DARK_WHITE
+#define FOOD_COLOR BRIGHT_RED
+#endif
 
 int char_width(font_descriptor_t* fdes, int ch);
 
@@ -60,6 +82,12 @@ void draw_char(int xTile, int yTile, font_descriptor_t* fdes, int ch, int back, 
 void draw_string(int xTile, int yTile, uint16_t colour, char *ch, int size_of_string, uint16_t *pixels);
 
 void draw_rect(int x, int y, int width, int height, int border, uint16_t color, uint16_t *fb);
+
+void draw_sinus(int x, int y, int size, uint16_t color, uint16_t* fb);
+
+void draw_lineX(int xTile, int yTile, int size, uint16_t colour, uint16_t *pixels);
+
+void draw_lineY(int xTile, int yTile, int size, uint16_t colour, uint16_t *pixels);
 
 void draw_filled_rect(int x, int y, int width, int height, uint16_t color, uint16_t *fb);
 

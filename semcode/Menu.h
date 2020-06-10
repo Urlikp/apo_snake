@@ -22,9 +22,14 @@
 #include "Snake.h"
 
 
+#ifndef BASE_COLOR
+#define BASE_COLOR DARK_WHITE
+#endif
+#ifndef SELECT_COLOR
+#define SELECT_COLOR BRIGHT_WHITE
+#endif
 
-#define BASE_COLOR DARK_RED
-#define SELECT_COLOR BRIGHT_RED
+
 //RECT
 #define BORDER_M 5
 #define WIDTH_M LCD_WIDTH
@@ -36,6 +41,56 @@
 #define STARTY_1_M 35
 #define STARTY_2_M 60
 
-int menu_selection(char key_pressed, int& pointer);
 
-void menu_fill_array(uint16_t* fb, unsigned char *parlcd_mem_base, int pointer, Game_Properties gp);
+/*
+  
+Class used for game menu selection
+to choose game mode or option  
+ 
+*/
+
+class  Game_Menu{
+  
+  int pointer = 1;
+  
+  public:
+    
+    /*
+  
+    Constructor creates base for class menu option
+  
+    */
+    Game_Menu(){
+      pointer = 1;
+    }
+
+    
+    /*
+  
+    Function cotnrols mmarked button in option system and changes the int values with &
+    dependent on what selected is.
+    [w] = up, [s] = down, [f] = select, [x] = back to menu 
+    
+    @params 
+      char key_pressed - pressed key
+
+    @returns
+      if [F] is pressed it returns number of selected button otherwise 0;
+    */
+    int menu_selection(char key_pressed);
+
+
+
+    /*
+      
+    Function renders mmarked button
+        
+    @params 
+      uint16_t* fb = to write into it in a render method
+      unsigned char * parlcd_mem_base = to pass in render method
+      Game_properties to know which size could be used for render;
+
+    */
+    void menu_fill_array(uint16_t* fb, unsigned char *parlcd_mem_base, Game_Properties gp);
+
+};

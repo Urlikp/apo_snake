@@ -23,33 +23,61 @@
 
 
 
-#define BASE_COLOR DARK_RED
-#define SELECT_COLOR BRIGHT_RED
-//RECT
-#define BORDER_M 5
-#define WIDTH_M LCD_WIDTH
-#define HEIGHT_M 100
-#define STARTY_M 120
-#define STARTX_M 0
 //TEXT
-#define STARTX_1_M LCD_WIDTH/8-LCD_WIDTH/10
-#define STARTY_1_M 35
-#define STARTY_2_M 60
+#define STARTX_1_ES LCD_WIDTH/8-LCD_WIDTH/10
 
+
+
+/*
+    Class used when the game ends
+*/
 class End_Scene{
     private:
         int counter;
         int moveX;
         int moveY;
+        int max;
 
     public:
+
+        /*
+
+        Constructor of a class that creates an fundamentation of class
+        and sets values 
+        
+        */
         End_Scene(){
         counter = 0;
-        moveX = STARTX_1_M;
+        moveX = STARTX_1_ES;
         moveY = LCD_HEIGHT/4;
+        max = 300;
         }
 
+        /*
+
+        Getter
+        
+        */
+        int get_max(){return max;}
+
+
+        /*
+
+        Function updates the moveY to create animation with text
+        
+        */
         void end_scene_update();
 
+
+        /*
+
+        Function renders the end text
+
+        @params 
+          uint16_t* fb = to write into it in a render method
+          unsigned char * parlcd_mem_base = to pass in render method
+          Game_properties to know which size could be used for render;
+        
+        */
         void end_scenefill_array(uint16_t* fb, unsigned char *parlcd_mem_base);
 };

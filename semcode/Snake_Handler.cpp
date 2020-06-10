@@ -2,13 +2,12 @@
 #ifndef HANDLER_INCLUDE
 #define HANDLER_INCLUDE
 
-
-#include "Snake.cpp"
-
 #include <vector>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
+
+#include "Snake.h"
 
 
 

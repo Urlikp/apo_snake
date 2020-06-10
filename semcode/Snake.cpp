@@ -1,9 +1,10 @@
-
+#ifndef S_C
+#define S_C
 
 #include "Snake.h"
 
 
-Snake::Snake(int x, int y, int new_color, Game_Properties new_gm){
+Snake::Snake(int x, int y, uint16_t new_color, Game_Properties new_gm){
     printf("Snake: initialized.\n");
     gm = new_gm;
     color = new_color;
@@ -435,4 +436,5 @@ void Snake::update(){
         fprintf(stderr, "Cannot do Update, because size of snake is 0.\n");
     }
 }
+#endif
 

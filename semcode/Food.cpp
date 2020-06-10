@@ -6,6 +6,7 @@
 #include <random>
 
 #include "Snake_Handler.cpp"
+//#include "Snake.h"
 
 #define START_POSITION 0
 
@@ -37,8 +38,8 @@ class Food{
 };
 
 void Food::start(int x, int y){
-    food_x = START_POSITION;
-    food_y = START_POSITION;
+    food_x = x;
+    food_y = y;
     for (size_t j = 0; j < handler->size; j++){
         handler->snakes[j]->set_position_of_food(food_x, food_y);
     }

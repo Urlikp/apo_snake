@@ -148,6 +148,14 @@ void draw_filled_rect(int x, int y, int width, int height, uint16_t color, uint1
 	}
 }
 
+void draw_sinus(int x, int y, int size, uint16_t color, uint16_t* fb){
+	for (size_t i = x; i < x+size; i++)
+	{
+		draw_pixel(i,(int)(-round(10*sin(2*(i*M_PI/45))))+y, color, fb);
+	}
+	
+}
+
 void fill_unit(int xTile, int yTile, uint16_t colour, uint16_t* pixels)
 {
 	if (xTile >= 0 && xTile < GAME_WIDTH/SIZE_OF_SQUARE && yTile >= 0 && yTile < GAME_HEIGHT/SIZE_OF_SQUARE)

@@ -45,7 +45,7 @@ class Snake{
         size_t size = 0;
         size_t max_size;
         Snake_Tile tail;
-        int color;
+        uint16_t color;
         int tile_size;
         int health;
 
@@ -80,7 +80,7 @@ class Snake{
             new_color is a Hex number of color which snake uses in fill_array 
             gm struct that holds properties of game
         */
-        Snake(int x, int y, int new_color, Game_Properties gp);
+        Snake(int x, int y, uint16_t new_color, Game_Properties gp);
         
         /*
             Set address of an opponent snake
@@ -143,5 +143,9 @@ class Snake{
             Delete snake body;
         */
         void delete_snake_tiles();
+
+        uint16_t get_color(){
+            return color;
+        }
 };
 #endif
