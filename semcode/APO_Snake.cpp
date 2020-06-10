@@ -264,8 +264,11 @@ int main(int argc, char *argv[])
 	}
 
 	PrepareKeyboardTtySettings();
-	// game_over_fill_array(fb, parlcd_mem_base, 99, 99,BRIGHT_GREEN, BRIGHT_RED);
-	// draw(parlcd_mem_base, fb);
+	led_line(LED_LINE_0, mem_base);
+	led_RGB2(LED_BLACK, mem_base);
+	led_RGB1(LED_BLACK, mem_base);
+	
+
 
 	bool end = true;
 	int pointer = 1;
@@ -334,7 +337,7 @@ int main(int argc, char *argv[])
 					}
 				}else if (gm_state == Options){
 					int pointer = 1;
-					int select = menu_options.options_selection(getch(),pointer, game_properties.speed, game_properties.size_of_tile, snake_1_color, snake_2_color);
+					int select = menu_options.options_selection(getch(),pointer, game_properties.speed, game_properties.size_of_tile, snake_1_color, snake_2_color, mem_base);
 					if (select ==1){
 						gm_state = Menu;
 					}
@@ -414,6 +417,7 @@ int main(int argc, char *argv[])
 	parlcd_delay(WAIT_TIME);
 	led_RGB2(LED_BLACK, mem_base);
 	led_RGB1(LED_BLACK, mem_base);
+	led_line(LED_LINE_0, mem_base);
 
 
 	free(fb);

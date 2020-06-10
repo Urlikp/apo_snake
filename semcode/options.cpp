@@ -7,7 +7,7 @@
 */
 
 
-int Menu_Options::options_selection(char key_pressed, int& pointer,  int& speed, int& size_of_tile, uint16_t& snake_1_color, uint16_t& snake_2_color){
+int Menu_Options::options_selection(char key_pressed, int& pointer,  int& speed, int& size_of_tile, uint16_t& snake_1_color, uint16_t& snake_2_color, unsigned char *mem_base){
         
     int return_value = 0;
     int number_of_items = 5;
@@ -43,6 +43,26 @@ int Menu_Options::options_selection(char key_pressed, int& pointer,  int& speed,
                     speed=1;
                 }
                 copy_speed = speed;
+                uint32_t val_line;
+                switch (speed)
+                {
+                case 1:
+                	val_line = LED_LINE_0;
+                	break;
+                case 2:
+                	val_line = LED_LINE_1;
+                	break;
+                case 3:
+                	val_line = LED_LINE_2;
+                	break;
+                case 4:
+                	val_line = LED_LINE_3;
+                	break;
+                case 5:
+                	val_line = LED_LINE_4;
+                	break;
+                }
+                led_line(val_line, mem_base);
                 break;
             case 2:
                 if (size_of_tile == 16){
