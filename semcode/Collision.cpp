@@ -1,7 +1,6 @@
 #ifndef C_H
 #define C_H
 #include "Snake_Handler.cpp"
-//#include "Snake.h"
 #include "Game_Properites.h"
 #include "Render.h"
 

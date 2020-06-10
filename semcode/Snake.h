@@ -33,10 +33,8 @@ class Snake{
         }Move;
 
         std::map<Snake_Tile::Direction, Move> moves;
-
-        //Move moves[4]; //0=UP 1=RIGHT 2=DOWN 3=LEFT
-        
         Snake_Tile::Direction dir;
+
         Snake* opponent_snake = NULL;
         Game_Properties gm;
         
@@ -57,20 +55,9 @@ class Snake{
         bool is_new_direction_correct(Snake_Tile::Direction new_dir, Snake_Tile::Direction prev_dir);
         Snake_Tile::Direction set_direction();
         void move_tiles();
-        void set_velocity_to_food();
-        Snake_Tile::Direction  choose_move();
         Snake_Tile::Direction choose_move2();
-        bool is_possible_die(int move_x, int move_y);
-        bool is_possible_die_by_eating_myself(int move_x, int move_y);
-        bool is_possible_eat_food(int move_x, int move_y);
-        bool is_possible_get_into_circle(int move_x, int move_y);
-        float is_getting_closer_to_food(int move_x, int move_y);
-        bool die(int move_x, int move_y);
-        void is_possible_move();
-        float calculate_distance_to_food();
         void set_moves();
         bool is_tile_occupied(int x, int y);
-        Snake_Tile::Direction player_move();
 
     public:
     //PUBLIC FUNCITONS
@@ -146,8 +133,17 @@ class Snake{
         */
         void delete_snake_tiles();
 
+
+
+        /*
+            Delete snake body;
+        */
         void set_direction(Snake_Tile::Direction dir);
 
+
+        /*
+            Get color of snake;
+        */
         uint16_t get_color(){
             return color;
         }

@@ -213,10 +213,6 @@ bool is_tile_occupied(int x, int y)
 int main(int argc, char *argv[])
 {
 
-	/*
-	uint32_t val_line = 0xffffffff;
-	*/
-
 	parlcd_mem_base = map_phys_address(PARLCD_REG_BASE_PHYS, PARLCD_REG_SIZE, 0);
 	if (parlcd_mem_base == NULL)
     {
@@ -233,7 +229,6 @@ int main(int argc, char *argv[])
     	exit(1);
 	}
 
-	
 
 	fb = (uint16_t *)malloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t));
 	if (fb == NULL)
@@ -243,7 +238,6 @@ int main(int argc, char *argv[])
 	}
 
 	PrepareKeyboardTtySettings();
-	
 	
 	led_RGB2(LED_PINK, mem_base);
 	led_RGB1(LED_PINK, mem_base);
@@ -287,7 +281,7 @@ int main(int argc, char *argv[])
 	Menu_Options menu_options = Menu_Options();
 	Game_Properties game_properties{GAME_WIDTH, GAME_HEIGHT, SIZE_OF_SQUARE, LCD_WIDTH, LCD_HEIGHT, SPEED};
 
-	int  marked_item= 1;
+
 	clear_array(BLACK, fb);
 	draw(parlcd_mem_base, fb);
 	game_running = true;
@@ -305,7 +299,6 @@ int main(int argc, char *argv[])
 					case 2:
 						printf("SELECT GAME STANDAR\n");
 						gm_state = Standard;
-						//doesnt work yet
 						break;
 
 					case 3:
@@ -331,8 +324,9 @@ int main(int argc, char *argv[])
 			}else if (gm_state == Menu){
 				menu.menu_fill_array(fb, parlcd_mem_base, game_properties);
 			}
+			led_RGB2(LED_PINK, mem_base);
+			led_RGB1(LED_PINK, mem_base);
 			draw(parlcd_mem_base, fb);
-			//parlcd_delay(100);
 		}
 		if (gm_state == Demo){
 			update_demo_mode(&score, game_properties);	
@@ -373,27 +367,4 @@ int main(int argc, char *argv[])
 
 	free(fb);
 	return 0;
-
-
-
-	// led_RGB2(LED_RED, mem_base); 
-	// parlcd_delay(2*WAIT_TIME);
-	// led_RGB1(LED_RED, mem_base); 
-	// parlcd_delay(2*WAIT_TIME);
-	// led_RGB2(LED_GREEN, mem_base); 
-	// parlcd_delay(2*WAIT_TIME);
-	// led_RGB1(LED_GREEN, mem_base); 
-	// parlcd_delay(2*WAIT_TIME);
-	// led_RGB2(LED_BLUE, mem_base); 
-	// parlcd_delay(2*WAIT_TIME);
-	// led_RGB1(LED_BLUE, mem_base); 
-	// parlcd_delay(2*WAIT_TIME);
-	// led_RGB1(LED_BLACK, mem_base);
-	// led_RGB2(LED_BLACK, mem_base); 
-	// parlcd_delay(2*WAIT_TIME);
-
-	
-
-	// free(fb);
-	// return 0;
 }
