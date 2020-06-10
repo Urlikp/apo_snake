@@ -116,7 +116,7 @@ void update_demo_mode(Score* score, Game_Properties game_properties){
 	}	
 }
 
-bool input()
+void input()
 {
 	if (kbhit())
 	{
@@ -146,12 +146,15 @@ bool input()
 				dir = Snake_Tile::RIGHT;
 			}
 			break;
+		case 'x':
+			gm_state = GameOver;
+			clear_array(BLACK, fb);
+			led_RGB1(LED_RED, mem_base);
+			led_RGB2(LED_RED, mem_base);
 		default:
 			break;
 		}
-		return true;
 	}
-	return false;
 }
 
 
@@ -172,12 +175,14 @@ void update_standard_mode(Score* score, Game_Properties game_properties){
 	score->score_fill_array(fb, parlcd_mem_base);
 	draw(parlcd_mem_base, fb);
 	parlcd_delay(WAIT_TIME/game_properties.speed);
-	dir= Snake_Tile::NONE;
-	//sn.set_direction(dir);
-	while(gm_state == Standard){
-		if(input()){
-			sn.set_direction(dir);
-		}
+	dir = Snake_Tile::NONE;
+	while (dir == Snake_Tile::NONE)
+	{
+		input();
+		parlcd_delay(WAIT_TIME/game_properties.speed);
+	}
+	sn.set_direction(dir);
+	while (gm_state == Standard){
 		food.update(mem_base);
 		handler.update();
 		score->update(handler);
@@ -192,12 +197,8 @@ void update_standard_mode(Score* score, Game_Properties game_properties){
 			draw(parlcd_mem_base, fb);
 			parlcd_delay(WAIT_TIME/game_properties.speed);
 		}
-		if(kbhit() && getch()=='x'){
-			gm_state = GameOver;
-			clear_array(BLACK, fb);
-			led_RGB1(LED_RED, mem_base);
-			led_RGB2(LED_RED, mem_base);
-		}
+		input();
+		sn.set_direction(dir);
 	}        
 }
 
@@ -337,52 +338,7 @@ int main(int argc, char *argv[])
 			update_demo_mode(&score, game_properties);	
 		}
 		if (gm_state == Standard){
-			score.reset();
-			clear_array(BLACK, fb);
-			printf("START\n");
-			Snake_Handler handler = Snake_Handler();
-			Snake sn = Snake(2, 2, snake_1_color, game_properties, true);
-			Snake sn2 = Snake(9, 9, snake_2_color, game_properties, false);
-			sn2.set_opposite_snake(&sn);
-			sn.set_opposite_snake(&sn2);
-			handler.add_snake(&sn);
-			handler.add_snake(&sn2);
-			Food food = Food(&handler, 5, 5, 3, FOOD_COLOR, GAME_WIDTH, GAME_HEIGHT, game_properties.size_of_tile);
-			food.fill_array(fb,LCD_WIDTH);
-			handler.fill_array(fb, LCD_WIDTH);
-			score.score_fill_array(fb, parlcd_mem_base);
-			draw(parlcd_mem_base, fb);
-			parlcd_delay(WAIT_TIME/game_properties.speed);
-			dir= Snake_Tile::NONE;
-			//sn.set_direction(dir);
-			while(gm_state == Standard){
-				if(input()){
-					sn.set_direction(dir);
-				}
-				food.update(mem_base);
-				handler.update();
-				score.update(handler);
-				if(collision_update(handler, game_properties,mem_base)){
-					clear_array(BLACK, fb);
-					handler.delete_snakes();
-					gm_state = GameOver;
-				}else{
-					food.fill_array(fb,LCD_WIDTH);
-					handler.fill_array(fb, LCD_WIDTH);
-					score.score_fill_array(fb, parlcd_mem_base);
-					draw(parlcd_mem_base, fb);
-					parlcd_delay(WAIT_TIME/game_properties.speed);
-				}
-				if(kbhit() && getch()=='x'){
-					gm_state = GameOver;
-					clear_array(BLACK, fb);
-					led_RGB1(LED_RED, mem_base);
-					led_RGB2(LED_RED, mem_base);
-				}
-				if(input()){
-					sn.set_direction(dir);
-				}
-	}        
+			update_standard_mode(&score, game_properties);	
 		}
 		while(gm_state == GameOver){
 			if(kbhit() && game_over_update(getch())==1){
