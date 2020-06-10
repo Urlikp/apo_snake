@@ -6,6 +6,7 @@
 #include <random>
 
 #include "Snake_Handler.cpp"
+#include "Render.h"
 //#include "Snake.h"
 
 #define START_POSITION 0
@@ -17,10 +18,12 @@ class Food{
         int max_x, max_y;
         int tile_size;
         int border, color;
+        int timer = 0;
+        bool start_time = false;
         Snake_Handler* handler;
     private:
         void add_new_food();
-        bool was_food_eaten();
+        bool was_food_eaten(unsigned char *mem_base);
     public:
     int food_x, food_y;
         Food(Snake_Handler* handler2, int x, int y, int border2, int color2, int max_x2, int max_y2, int tile_size2){
@@ -31,10 +34,11 @@ class Food{
             tile_size = tile_size2;
             border = border2;
             color = color2;
+            timer = 0;
             start(x,y);
         }
         void start(int, int);
-        void update();
+        void update(unsigned char *mem_base);
         void fill_array(uint16_t *fb, int LCD_width);
 };
 
@@ -46,8 +50,8 @@ void Food::start(int x, int y){
     }
 }
 
-void Food::update(){
-    if (was_food_eaten())
+void Food::update(unsigned char *mem_base){
+    if (was_food_eaten(mem_base))
     {
         add_new_food();
     }
@@ -98,10 +102,9 @@ void Food::add_new_food(){
     for (size_t j = 0; j < handler->size; j++){
         handler->snakes[j]->set_position_of_food(food_x, food_y);
     }
-    
 }
 
-bool Food::was_food_eaten(){
+bool Food::was_food_eaten(unsigned char *mem_base){
     bool ret = false;
     for (size_t i = 0; i < handler->size && ret == false; i++)
     {
@@ -109,14 +112,24 @@ bool Food::was_food_eaten(){
         printf("%d, %d \n", tmp.get_x(), tmp.get_y());
         if (tmp.get_x() == food_x && tmp.get_y()==food_y)
         {
-            ret = true;
             handler->snakes[i]->add_snake_tile();
             if(i==0){
-
-            }else{
-                
+                led_RGB1(LED_BLUE, mem_base);
+            }else if (i==1){
+                led_RGB2(LED_BLUE, mem_base);
             }
-        } 
+            start_time = true;
+            return true;
+        }
+    }
+    if(start_time){
+        timer++;
+    }
+    if(timer==0 || timer==2){
+        led_RGB1(LED_GREEN, mem_base);
+        led_RGB2(LED_GREEN, mem_base);
+        timer = 0;
+        start_time = false;
     }
     return ret;
 }

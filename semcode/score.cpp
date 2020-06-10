@@ -55,6 +55,7 @@ void Score::score_fill_array(uint16_t* fb, unsigned char *parlcd_mem_base){
 }
 
 void Score::reset(){
+    //printf("reset\n");
     score_1 = 1;
     score_2 = 1;
     clock_gettime(CLOCK_MONOTONIC, &begin_clock);

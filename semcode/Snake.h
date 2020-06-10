@@ -23,6 +23,7 @@ using namespace std;
 class Snake{
     protected:
     //PROTECTED VARIABLES
+        bool is_player_playing;
         typedef struct Move
         {
             Snake_Tile::Direction move_dir;
@@ -69,6 +70,7 @@ class Snake{
         float calculate_distance_to_food();
         void set_moves();
         bool is_tile_occupied(int x, int y);
+        Snake_Tile::Direction player_move();
 
     public:
     //PUBLIC FUNCITONS
@@ -80,7 +82,7 @@ class Snake{
             new_color is a Hex number of color which snake uses in fill_array 
             gm struct that holds properties of game
         */
-        Snake(int x, int y, uint16_t new_color, Game_Properties gp);
+        Snake(int x, int y, uint16_t new_color, Game_Properties gp, bool is_player);
         
         /*
             Set address of an opponent snake
@@ -143,6 +145,8 @@ class Snake{
             Delete snake body;
         */
         void delete_snake_tiles();
+
+        void set_direction(Snake_Tile::Direction dir);
 
         uint16_t get_color(){
             return color;

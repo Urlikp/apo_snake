@@ -4,11 +4,12 @@
 #include "Snake.h"
 
 
-Snake::Snake(int x, int y, uint16_t new_color, Game_Properties new_gm){
+Snake::Snake(int x, int y, uint16_t new_color, Game_Properties new_gm, bool is_player){
     printf("Snake: initialized.\n");
     gm = new_gm;
     color = new_color;
     health = 1;
+    is_player_playing = is_player;
     tile_size = gm.size_of_tile;
     snake_tiles.resize(DEFAULT_SIZE);
     snake_tiles.emplace_back(x,y);
@@ -465,42 +466,67 @@ void Snake::fill_array(uint16_t *fb,  int LCD_width){
     }
 }
 
+void Snake::set_direction(Snake_Tile::Direction dir){
+    snake_tiles[0].set_direction(dir);
+}
+
+Snake_Tile::Direction Snake::player_move(){
+    if(snake_tiles[0].get_direction()!=Snake_Tile::NONE){
+        move_tiles();
+        snake_tiles[0].set_direction(snake_tiles[0].get_direction());
+        snake_tiles[0].set_y(snake_tiles[0].get_y()+moves[snake_tiles[0].get_direction()].move_y);
+        snake_tiles[0].set_x(snake_tiles[0].get_x()+moves[snake_tiles[0].get_direction()].move_x);
+        printf("MY HEAD: X:%d Y:%d\n",snake_tiles[0].get_x(), snake_tiles[0].get_y());
+    }
+    return snake_tiles[0].get_direction();
+}
+
 
 void Snake::update(){
     if(size>0){
-        printf("MOVE************************\n");
-        printf("SIZE: %zu\n", size);
-        Snake_Tile::Direction new_reward_dir = choose_move2();
-        if(!is_new_direction_correct(new_reward_dir, dir)){
-            printf("THAT IS NOT CORRECT! UUUUUUUUUUUUUUUUUUUUUUUUUUUUU\n");
+        if(is_player_playing){
+            velocity_x = moves[snake_tiles[0].get_direction()].move_x;
+            velocity_y = moves[snake_tiles[0].get_direction()].move_y;
+            dir = set_direction();
+            move_tiles();
+            snake_tiles[0].set_direction(snake_tiles[0].get_direction());
+            snake_tiles[0].set_y(snake_tiles[0].get_y()+velocity_y);
+            snake_tiles[0].set_x(snake_tiles[0].get_x()+velocity_x);
+        }else{
+            printf("MOVE************************\n");
+            printf("SIZE: %zu\n", size);
+            Snake_Tile::Direction new_reward_dir = choose_move2();
+            if(!is_new_direction_correct(new_reward_dir, dir)){
+                printf("THAT IS NOT CORRECT! UUUUUUUUUUUUUUUUUUUUUUUUUUUUU\n");
+            }
+            velocity_x = moves[new_reward_dir].move_x;
+            velocity_y = moves[new_reward_dir].move_y;
+            dir = set_direction();
+            move_tiles();
+            snake_tiles[0].set_direction(new_reward_dir);
+            snake_tiles[0].set_y(snake_tiles[0].get_y()+velocity_y);
+            snake_tiles[0].set_x(snake_tiles[0].get_x()+velocity_x);
+        
+        
+            // choose_move();
+            // set_velocity_to_food();
+            // if (velocity_x==0)
+            // {   
+            //     dir = set_direction();
+            //     move_tiles();
+                
+            //     snake_tiles[0].set_direction(dir);
+            //     snake_tiles[0].set_y(snake_tiles[0].get_y()+velocity_y);
+            // }else{
+            //     dir = set_direction();
+            //     move_tiles();
+            //     snake_tiles[0].set_direction(dir);
+            //     snake_tiles[0].set_x(snake_tiles[0].get_x()+velocity_x);
+            // }
+            printf(" HEAD: %s %d %d\n", snake_tiles[0].print_direction(),snake_tiles[0].get_x(), snake_tiles[0].get_y());
+            printf("FOOD X:%d Y:%d\n", food_x, food_y);
+            printf("END MOVE************************\n");
         }
-        velocity_x = moves[new_reward_dir].move_x;
-        velocity_y = moves[new_reward_dir].move_y;
-        dir = set_direction();
-        move_tiles();
-        snake_tiles[0].set_direction(new_reward_dir);
-        snake_tiles[0].set_y(snake_tiles[0].get_y()+velocity_y);
-        snake_tiles[0].set_x(snake_tiles[0].get_x()+velocity_x);
-    
-    
-        // choose_move();
-        // set_velocity_to_food();
-        // if (velocity_x==0)
-        // {   
-        //     dir = set_direction();
-        //     move_tiles();
-            
-        //     snake_tiles[0].set_direction(dir);
-        //     snake_tiles[0].set_y(snake_tiles[0].get_y()+velocity_y);
-        // }else{
-        //     dir = set_direction();
-        //     move_tiles();
-        //     snake_tiles[0].set_direction(dir);
-        //     snake_tiles[0].set_x(snake_tiles[0].get_x()+velocity_x);
-        // }
-        printf(" HEAD: %s %d %d\n", snake_tiles[0].print_direction(),snake_tiles[0].get_x(), snake_tiles[0].get_y());
-        printf("FOOD X:%d Y:%d\n", food_x, food_y);
-        printf("END MOVE************************\n");
     }else{
         fprintf(stderr, "Cannot do Update, because size of snake is 0.\n");
     }
