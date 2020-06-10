@@ -29,8 +29,8 @@ class Score{
         Score(){
             score_1 = 1;
             score_2 = 1;
-            color_1 = 0x0000;
-            color_2 = 0x0000;
+            color_1 = 0xffff;
+            color_2 = 0xffff;
         }
 
         /*
@@ -67,5 +67,7 @@ class Score{
         */
         int get_score_1(){return score_1;}
         int get_score_2(){return score_2;}
+        uint16_t get_color_1(){return color_1;}
+        uint16_t get_color_2(){return color_2;}
 };
 #endif

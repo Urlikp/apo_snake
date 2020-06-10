@@ -159,9 +159,11 @@ bool Snake::is_possible_die(int move_x, int move_y){
     my_head.set_x(my_head.get_x()+move_x);
     my_head.set_y(my_head.get_y()+move_y);
     if (my_head.get_x() < 0 || my_head.get_x() >= gm.game_width/gm.size_of_tile){
+        printf("Could die by X %d %d, color: %x\n",my_head.get_x(), my_head.get_y(),color);
         return true;
     }
     if (my_head.get_y()<0 || my_head.get_y() >= gm.game_height/gm.size_of_tile){
+        printf("Could die by Y %d %d, color: %x\n",my_head.get_x(), my_head.get_y(),color);
         return true;
     }
     if(opponent_snake!=NULL){
@@ -171,10 +173,17 @@ bool Snake::is_possible_die(int move_x, int move_y){
             Snake_Tile test = opponent_snake->get_tile(i);
             test.set_x(prev.get_x());
             test.set_y(prev.get_y());
+            printf("OPPONENT SIZE: %d\n", opponent_snake->get_size());
             if (test.get_y()==my_head.get_y() || test.get_x()==my_head.get_x()){
+                printf("Could die by Other_one %d %d, color: %x\n",my_head.get_x(), my_head.get_y(),color);
                 return true;
             }
         }
+        Snake_Tile opp_head = opponent_snake->get_tile(0);
+        if (opp_head.get_x() == my_head.get_x() && opp_head.get_y() == my_head.get_y()){
+            return true;
+        }
+        
     }
     return ret;
 }
@@ -194,18 +203,12 @@ float Snake::calculate_distance_to_food(){
 }
 
 float Snake::is_getting_closer_to_food(int move_x, int move_y){
-    float diff_x = food_x - (float)((snake_tiles[0].get_x()));
-    float diff_y = food_y - (float)((snake_tiles[0].get_y()));
-    float distance = (float) sqrt(pow(diff_x,2)+pow(diff_y,2));
     Snake_Tile my_head = get_tile(0);
     my_head.set_x(my_head.get_x()+move_x);
     my_head.set_y(my_head.get_y()+move_y);
     float new_diff_x = food_x - (float)((my_head.get_x()));
     float new_diff_y = food_y - (float)((my_head.get_y()));
     float new_distance = (float) sqrt(pow(new_diff_x,2)+pow(new_diff_y,2));
-    float difference = distance - new_distance;
-    int c = abs(diff_x)+abs(diff_y);
-    int c2 = abs(new_diff_x)+abs(new_diff_y);
     return new_distance;
 }
 
@@ -227,7 +230,7 @@ Snake_Tile::Direction  Snake::choose_move(){
     for(it = moves.begin(); it!= moves.end(); it++){
         if (!is_new_direction_correct(it->second.move_dir, dir)){
             it->second.reward -=0.9;
-        }else if (is_possible_die_by_eating_myself(it->second.move_x, it->second.move_y)){
+        }else if (die(it->second.move_x, it->second.move_y)){
             it->second.reward -=0.75;
         }else if (is_possible_die(it->second.move_x, it->second.move_y)){
             it->second.reward -=0.8;
@@ -308,6 +311,7 @@ bool Snake::die(int move_x, int move_y){
         test.set_x(prev.get_x());
         test.set_y(prev.get_y());
         if(my_head.get_y() == test.get_y() && my_head.get_x() == test.get_x()){
+            printf("Could die by himself %d %d, color: %x\n",my_head.get_x(), my_head.get_y(),color);
             return true;
         }
     }
@@ -316,7 +320,7 @@ bool Snake::die(int move_x, int move_y){
 
 Snake_Tile::Direction Snake::choose_move2(){
     Snake_Tile::Direction selected_dir = Snake_Tile::NONE;
-    float control = 1000;
+    float control = 10000;
     for (int dirInt = Snake_Tile::UP; dirInt!=Snake_Tile::NONE; dirInt++){
         Snake_Tile::Direction new_dir = static_cast<Snake_Tile::Direction> (dirInt);
         if (is_new_direction_correct(new_dir,dir))

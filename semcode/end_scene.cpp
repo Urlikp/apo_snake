@@ -6,6 +6,7 @@ All described in a file end_scene.h
 
 */
 
+
 void End_Scene::end_scene_update(){
     counter++;
     if(counter %2 == 0){

@@ -66,7 +66,7 @@ int Game_Menu::menu_selection(char key_pressed){
 void Game_Menu::menu_fill_array(uint16_t* fb, unsigned char *parlcd_mem_base,Game_Properties gp){
     uint16_t colors[2] = {BASE_COLOR, BASE_COLOR};
     colors[pointer%2] = SELECT_COLOR;
-    printf("RENDER%d\n", pointer);
+
     //GAME NAME
     int xTile = STARTX_1_M, yTile = 5;
     char str[]="S N A K E";
@@ -75,7 +75,7 @@ void Game_Menu::menu_fill_array(uint16_t* fb, unsigned char *parlcd_mem_base,Gam
     char *begin = str;
     draw_rect(STARTX_M, 0, WIDTH_M, HEIGHT_M, 3*BORDER_M, BASE_COLOR, fb);
     draw_string(xTile, yTile, BASE_COLOR, begin, size_of_str, fb);
-    printf("RENDER%d\n", pointer);
+
     //MENU ITEMS
     if(pointer <=2){
         int xTile = STARTX_1_M, yTile = STARTY_1_M;
@@ -109,5 +109,5 @@ void Game_Menu::menu_fill_array(uint16_t* fb, unsigned char *parlcd_mem_base,Gam
         draw_string(xTile, yTile, colors[0], begin, size_of_str, fb);
         draw_rect(STARTX_M, STARTY_M+HEIGHT_M, WIDTH_M, HEIGHT_M, BORDER_M, colors[0], fb);
     } 
-        printf("RENDER%d\n", pointer);
+
 }

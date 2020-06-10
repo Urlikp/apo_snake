@@ -28,7 +28,7 @@ void game_over_fill_array(uint16_t* fb, unsigned char *parlcd_mem_base, int scor
     begin = str3;
     draw_filled_rect(STARTX_GO+25, STARTY_GO+25, 50, 50, color_1, fb);
     draw_string(xTile, yTile, color_1, begin, size_of_str, fb);
-    
+
     xTile = STARTX_1_GO+50; yTile = STARTY_1_GO;
     char str4[10];
     sprintf(str4, "%d", score_1);
@@ -44,12 +44,12 @@ void game_over_fill_array(uint16_t* fb, unsigned char *parlcd_mem_base, int scor
     begin = str5;
     draw_filled_rect(STARTX_GO+25, STARTY_GO+25+100, 50, 50, color_2, fb);
     draw_string(xTile, yTile, color_2, begin, size_of_str, fb);
-    
+
     xTile = STARTX_1_GO+50; yTile = STARTY_2_GO;
     char str6[10];
     sprintf(str6, "%d", score_2);
     size_of_str = 0;
-    while (str4[size_of_str] != 0){size_of_str++;}
+    while (str6[size_of_str] != 0){size_of_str++;}
     begin = str6;
     draw_string(xTile, yTile, color_2, begin, size_of_str, fb);
 

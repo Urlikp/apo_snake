@@ -14,12 +14,11 @@ int Menu_Options::options_selection(char key_pressed, int& pointer,  int& speed,
 
     if (key_pressed == 'w'){
         pointer_to_item--;
-        printf("Options: %d item\n", pointer_to_item);
     }
 
     if (key_pressed == 's'){
         pointer_to_item++;
-        printf("Options: %d item\n", pointer_to_item);
+        
     }
     
     if (key_pressed == 'x'){
@@ -35,7 +34,6 @@ int Menu_Options::options_selection(char key_pressed, int& pointer,  int& speed,
     if(pointer_to_item>5){
         pointer_to_item = 1;
     }
-
     if (key_pressed == 'f'){
         switch (pointer_to_item)
         {
@@ -75,6 +73,7 @@ int Menu_Options::options_selection(char key_pressed, int& pointer,  int& speed,
         }
         printf("Options: item %d SELECTED.\n",pointer_to_item);
     }
+    printf("Options: %d item\n", pointer_to_item);
     return return_value;
 }
 

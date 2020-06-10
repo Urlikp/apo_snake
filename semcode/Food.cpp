@@ -24,6 +24,7 @@ class Food{
     public:
     int food_x, food_y;
         Food(Snake_Handler* handler2, int x, int y, int border2, int color2, int max_x2, int max_y2, int tile_size2){
+            srand((unsigned) time(0));
             handler = handler2;
             max_x = max_x2;
             max_y = max_y2;
@@ -79,7 +80,6 @@ void Food::add_new_food(){
     bool ret = true;
     while(ret){
         ret = false;
-        srand((unsigned) time(0));
         food_x = rand() %(max_x/tile_size);
         food_y = rand() %(max_y/tile_size);
         for (size_t i = 0; i < handler->size && ret==false; i++)
@@ -111,6 +111,11 @@ bool Food::was_food_eaten(){
         {
             ret = true;
             handler->snakes[i]->add_snake_tile();
+            if(i==0){
+
+            }else{
+                
+            }
         } 
     }
     return ret;

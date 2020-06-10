@@ -21,7 +21,9 @@
 #include "Render.h"
 #include "Snake.h"
 
-
+#ifndef BASE_COLOR
+#define BASE_COLOR DARK_WHITE
+#endif
 
 //TEXT
 #define STARTX_1_ES LCD_WIDTH/8-LCD_WIDTH/10
@@ -50,7 +52,7 @@ class End_Scene{
         counter = 0;
         moveX = STARTX_1_ES;
         moveY = LCD_HEIGHT/4;
-        max = 300;
+        max = 400;
         }
 
         /*
