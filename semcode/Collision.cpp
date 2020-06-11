@@ -4,18 +4,34 @@
 #include "Game_Properites.h"
 #include "Render.h"
 
+
+/*
+
+Collision_update checks each snake to do no wrong moves
+    - Simple rules of game snake
+        - out of playground = death
+        - head of snake crashed into movable parts of game = death
+@params 
+    Snake_Hanlder - to check each snake in handler
+    Game_Properties - to know about sizes of game
+    unsigned char* mem_base - to turn on LED diode
+@returns
+    true if some snake died otherwise false.
+
+*/
+
 bool collision_update(Snake_Handler handler, Game_Properties gm, unsigned char* mem_base){
     size_t death_snake = -1;
     bool ret = false;
     for(size_t i = 0; i < handler.size && !ret; i++){
         Snake_Tile test_head = handler.snakes[i]->get_tile(0);
         if(test_head.get_x()<0 || test_head.get_x()>=gm.game_width/gm.size_of_tile){
-            printf("SNAKE: %zu DEATH BY X\n",i);
+            printf("Collision: snake: %zu died by coord X.\n",i);
             death_snake = i;
             ret = true;
         }
         if(test_head.get_y()<0 || test_head.get_y()>=gm.game_height/gm.size_of_tile){
-            printf("SNAKE: %zu death by Y\n",i);
+            printf("Collision: snake: %zu died by coord Y.\n",i);
              death_snake = i;
             ret = true;
         }
@@ -24,7 +40,7 @@ bool collision_update(Snake_Handler handler, Game_Properties gm, unsigned char* 
         {
             if(test_head.get_x() == test->get_tile(j).get_x() && test_head.get_y() == test->get_tile(j).get_y()){
                 death_snake = i;
-                printf("SNAKE: %zu DEATH BY HIMSELF\n",i);
+                printf("Collision: snake: %zu died by eating himself.\n",i);
                 ret = true;
             }
         }
@@ -34,7 +50,7 @@ bool collision_update(Snake_Handler handler, Game_Properties gm, unsigned char* 
                 for (size_t j = 0; j < test2->get_size() && !ret; j++)
                 {
                     if(test_head.get_x() == test2->get_tile(j).get_x() && test_head.get_y() == test2->get_tile(j).get_y()){
-                        printf("SNAKE: %zu DEATH_BY OTHER SNAKE\n",i);
+                        printf("Collision: snake: %zu died by eating opponent snake.\n",i);
                         death_snake = i;
                         ret = true;
                     }   
@@ -43,6 +59,7 @@ bool collision_update(Snake_Handler handler, Game_Properties gm, unsigned char* 
         }
     }
     if(ret){
+        //to turn on LED diode
         if(death_snake==0){
             led_RGB1(LED_RED, mem_base);
         }else{

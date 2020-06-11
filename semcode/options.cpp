@@ -7,7 +7,7 @@
 */
 
 
-int Menu_Options::options_selection(char key_pressed, int& pointer,  int& speed, int& size_of_tile, uint16_t& snake_1_color, uint16_t& snake_2_color, unsigned char *mem_base){
+int Menu_Options::options_selection(char key_pressed, int& speed, int& size_of_tile, uint16_t& snake_1_color, uint16_t& snake_2_color, unsigned char *mem_base){
         
     int return_value = 0;
     int number_of_items = 5;
@@ -66,6 +66,8 @@ int Menu_Options::options_selection(char key_pressed, int& pointer,  int& speed,
                 break;
             case 2:
                 if (size_of_tile == 16){
+                    size_of_tile = 20;
+                }else if(size_of_tile == 20){
                     size_of_tile = 32;
                 }else if(size_of_tile == 32){
                     size_of_tile = 16;
@@ -92,8 +94,9 @@ int Menu_Options::options_selection(char key_pressed, int& pointer,  int& speed,
                 break;
         }
         printf("Options: item %d SELECTED.\n",pointer_to_item);
+    }else{
+        printf("Options: %d item\n", pointer_to_item);
     }
-    printf("Options: %d item\n", pointer_to_item);
     return return_value;
 }
 

@@ -95,7 +95,7 @@ class Menu_Options{
         @returns
           if is pressed [F] it returns number of selected button otherwife 0;
       */
-      int options_selection(char key_pressed, int& pointer, int& speed, int& size_of_tile, uint16_t& snake_1_color, uint16_t& snake_2_color, unsigned char *mem_base);
+      int options_selection(char key_pressed, int& speed, int& size_of_tile, uint16_t& snake_1_color, uint16_t& snake_2_color, unsigned char *mem_base);
       
       
       
