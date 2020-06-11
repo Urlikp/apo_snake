@@ -19,7 +19,6 @@
 
 #include "Game_Properites.h"
 #include "Render.h"
-#include "Snake.h"
 
 
 #ifndef BASE_COLOR

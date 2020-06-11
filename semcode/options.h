@@ -10,8 +10,6 @@
       license:  any combination of GPL, LGPL, MPL or BSD licenses
 
  *******************************************************************/
-
-
 #ifndef O_H
 #define O_H
 
@@ -23,12 +21,10 @@
 
 #include "Game_Properites.h"
 #include "Render.h"
-//#include "Snake.h"
 
 
 
-// #define BASE_COLOR_O DARK_RED
-// #define SELECT_COLOR_O BRIGHT_RED
+//colors
 #ifndef BASE_COLOR
 #define BASE_COLOR DARK_WHITE
 #endif
@@ -36,13 +32,13 @@
 #define SELECT_COLOR BRIGHT_WHITE
 #endif
 
-//RECT
+//Rectangle 
 #define BORDER_O 5
 #define WIDTH_O LCD_WIDTH
 #define HEIGHT_O 100
 #define STARTY_O 120
 #define STARTX_O 0
-//TEXT
+//Text
 #define STARTX_1_O LCD_WIDTH/8-30
 #define STARTY_1_O 35
 #define STARTY_2_O 60

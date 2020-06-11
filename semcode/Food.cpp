@@ -1,46 +1,14 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <cstdlib>
-#include <ctime>
-#include <iostream>
-#include <random>
 
-#include "Snake_Handler.cpp"
-#include "Render.h"
-//#include "Snake.h"
-
-#define START_POSITION 0
+#include "Food.h"
 
 using namespace std;
 
-class Food{
-        
-        int max_x, max_y;
-        int tile_size;
-        int border, color;
-        int timer = 0;
-        bool start_time = false;
-        Snake_Handler* handler;
-    private:
-        void add_new_food();
-        bool was_food_eaten(unsigned char *mem_base);
-    public:
-    int food_x, food_y;
-        Food(Snake_Handler* handler2, int x, int y, int border2, int color2, int max_x2, int max_y2, int tile_size2){
-            srand((unsigned) time(0));
-            handler = handler2;
-            max_x = max_x2;
-            max_y = max_y2;
-            tile_size = tile_size2;
-            border = border2;
-            color = color2;
-            timer = 0;
-            start(x,y);
-        }
-        void start(int, int);
-        void update(unsigned char *mem_base);
-        void fill_array(uint16_t *fb, int LCD_width);
-};
+/*
+
+All described in Food.h
+
+*/
+
 
 void Food::start(int x, int y){
     food_x = x;

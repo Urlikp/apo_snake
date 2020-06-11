@@ -226,8 +226,8 @@ void Snake::update(){
             snake_tiles[0].set_direction(snake_tiles[0].get_direction());
             snake_tiles[0].set_y(snake_tiles[0].get_y()+velocity_y);
             snake_tiles[0].set_x(snake_tiles[0].get_x()+velocity_x);
+            printf("MY HEAD: %s X%d Y%d S%zu **\n", snake_tiles[0].print_direction(),snake_tiles[0].get_x(), snake_tiles[0].get_y(),size);
         }else{
-            printf("MOVE************************\n");
             Snake_Tile::Direction new_reward_dir = choose_move2();
             velocity_x = moves[new_reward_dir].move_x;
             velocity_y = moves[new_reward_dir].move_y;
@@ -237,7 +237,6 @@ void Snake::update(){
             snake_tiles[0].set_y(snake_tiles[0].get_y()+velocity_y);
             snake_tiles[0].set_x(snake_tiles[0].get_x()+velocity_x);
             printf("HEAD: %s X%d Y%d S%zu\n", snake_tiles[0].print_direction(),snake_tiles[0].get_x(), snake_tiles[0].get_y(),size);
-            printf("****************************\n");
         }
     }else{
         fprintf(stderr, "Cannot do Update, because size of snake is 0.\n");

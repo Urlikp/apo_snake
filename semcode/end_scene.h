@@ -51,7 +51,7 @@ class End_Scene{
         End_Scene(){
         counter = 0;
         moveX = STARTX_1_ES;
-        moveY = LCD_HEIGHT/4;
+        moveY = LCD_HEIGHT / 4;
         max = 400;
         }
 

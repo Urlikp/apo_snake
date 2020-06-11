@@ -1,7 +1,7 @@
 #ifndef S_H
 #define S_H
 
-#include "Snake_Handler.cpp"
+#include "Snake_Handler.h"
 #include "Render.h"
 #include <time.h>
 

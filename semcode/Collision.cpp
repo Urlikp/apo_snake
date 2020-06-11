@@ -1,22 +1,9 @@
-#ifndef C_H
-#define C_H
-#include "Snake_Handler.cpp"
-#include "Game_Properites.h"
-#include "Render.h"
 
 
+#include "Collision.h"
 /*
 
-Collision_update checks each snake to do no wrong moves
-    - Simple rules of game snake
-        - out of playground = death
-        - head of snake crashed into movable parts of game = death
-@params 
-    Snake_Hanlder - to check each snake in handler
-    Game_Properties - to know about sizes of game
-    unsigned char* mem_base - to turn on LED diode
-@returns
-    true if some snake died otherwise false.
+All described in Collision.h
 
 */
 
@@ -59,7 +46,7 @@ bool collision_update(Snake_Handler handler, Game_Properties gm, unsigned char* 
         }
     }
     if(ret){
-        //to turn on LED diode
+        //to turn on LED diodes
         if(death_snake==0){
             led_RGB1(LED_RED, mem_base);
         }else{
@@ -69,4 +56,3 @@ bool collision_update(Snake_Handler handler, Game_Properties gm, unsigned char* 
     }
     return false;
 }
-#endif

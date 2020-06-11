@@ -30,10 +30,9 @@
 #include "input.h"
 #include "Game_Properites.h"
 
-#include "Snake.cpp"
-#include "Snake_Handler.cpp"
-#include "Food.cpp"
-#include "Collision.cpp"
+#include "Snake_Handler.h"
+#include "Food.h"
+#include "Collision.h"
 
 #include "Menu.h"
 #include "options.h"

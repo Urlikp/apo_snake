@@ -1,8 +1,8 @@
 /*******************************************************************
-  Project main function template for MicroZed based MZ_APO board
-  designed by Petr Porazil at PiKRON
-
-  Snake_Tile.cpp      - snake_tile file
+  Simple program to implement video game Snake on MicroZed based 
+  MZ_APO board designed by Petr Porazil at PiKRON
+  
+  Snake_Tile.cpp  - 
 
   (C) Copyright 2020 by Jiri Povolny and Marian Krotil
       e-mail:   povolji2@fel.cvut.cz, krotima1@fel.cvut.cz
