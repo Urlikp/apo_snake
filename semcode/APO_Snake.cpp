@@ -146,10 +146,8 @@ void update_game_over(Score* score);
 
 
 /*
-update_end_scene start at the end of game.
-	It renders s.
-@params 
-	Score - to use its parameteres to render
+update_end_scene starts at the end of game.
+	To skip this press [X]
 */
 void update_end_scene();
 

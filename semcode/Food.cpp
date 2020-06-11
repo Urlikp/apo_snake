@@ -88,7 +88,7 @@ void Food::add_new_food(){
         food_y = rand() %(max_y/tile_size);
         for (size_t i = 0; i < handler->size && ret==false; i++)
         {
-            int tmp_size = handler->snakes[i]->get_size();
+            size_t tmp_size = handler->snakes[i]->get_size();
             for (size_t j = 0; j < tmp_size && ret==false; j++)
             {
                 Snake_Tile tmp = handler->snakes[i]->get_tile(j);

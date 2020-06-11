@@ -61,6 +61,9 @@ int Menu_Options::options_selection(char key_pressed, int& speed, int& size_of_t
                 case 5:
                 	val_line = LED_LINE_4;
                 	break;
+                default:
+                    val_line = LED_LINE_0;;
+                    break;
                 }
                 led_line(val_line, mem_base);
                 break;

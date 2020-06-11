@@ -34,21 +34,22 @@ void draw_pixel(int xTile, int yTile, uint16_t colour, uint16_t *pixels)
 }
 
 void draw_lineX(int xTile, int yTile, int size, uint16_t colour, uint16_t *pixels){
-	for (size_t i = 0; i < size; i++)
+	for (int i = 0; i < size; i++)
 	{
 		draw_pixel(xTile + i, yTile, colour, pixels);
 	}
 }
 
 void draw_lineY(int xTile, int yTile, int size, uint16_t colour, uint16_t *pixels){
-	for (size_t i = 0; i < size; i++)
+	for (int i = 0; i < size; i++)
 	{
 		draw_pixel(xTile, yTile+i, colour, pixels);
 	}
 }
 
 void draw_char(int xTile, int yTile, font_descriptor_t* fdes, int ch, int back, uint16_t colour, uint16_t *pixels) {
-	int w, bw, i, j;
+	int w, bw, i;
+	unsigned int j;
 	const uint16_t *b;
 	unsigned patt = 0;
 	
@@ -102,17 +103,6 @@ void draw_string(int xTile, int yTile, uint16_t colour, char *ch, int size_of_st
 	}
 }
 
-// void draw_string_upgraded(int xTile, int yTile, uint16_t colour, char* str_draw){
-// 	char str[] = str_draw;
-// 	int size_of_str = 0;
-// 	while (str[size_of_str] != 0)
-// 	{
-// 		size_of_str++;
-// 	}
-// 	char *begin = str;
-// 	draw_string(xTile, yTile, DARK_RED, begin, size_of_str, fb);
-// }
-
 void draw_rect(int x, int y, int width, int height, int border, uint16_t color, uint16_t *fb){
 	if(y<=LCD_HEIGHT && y>=0 && x<=LCD_WIDTH && x>=0){
 		for (int i = y; i < y + border; i++) {
@@ -149,7 +139,7 @@ void draw_filled_rect(int x, int y, int width, int height, uint16_t color, uint1
 }
 
 void draw_sinus(int x, int y, int size, uint16_t color, uint16_t* fb){
-	for (size_t i = x; i < x+size; i++)
+	for (int i = x; i < x+size; i++)
 	{
 		draw_pixel(i,(int)(-round(10*sin(2*(i*M_PI/45))))+y, color, fb);
 	}
@@ -176,26 +166,16 @@ void clear_array(uint16_t colour, uint16_t* pixels)
 	{
 		pixels[i] = colour;
 	}
-	
-	// for (size_t i = 0; i < LCD_HEIGHT; i++)
-	// {
-	// 	for (size_t j = 0; j < LCD_WIDTH; j++)
-	// 	{
-	// 		fill_unit(j,i, colour, pixels);
-	// 	}
-	// }
 }
 
 
 void draw(unsigned char *parlcd_mem_base, uint16_t* pixels)
 {
-	//printf("START of Draw\n");
 	parlcd_write_cmd(parlcd_mem_base, 0x2c);
 	for (int i = 0; i < LCD_WIDTH * LCD_HEIGHT; i++) 
 	{
 		parlcd_write_data(parlcd_mem_base, pixels[i]);
 	}
-	//printf("End of Draw\n");
 }
 
 void led_line(uint32_t val_line, unsigned char *mem_base)

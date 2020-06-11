@@ -72,7 +72,11 @@
 #define BASE_COLOR DARK_WHITE
 #define FOOD_COLOR BRIGHT_RED
 #endif
+/*
 
+    
+
+*/
 int char_width(font_descriptor_t* fdes, int ch);
 
 void draw_pixel(int xTile, int yTile, uint16_t colour, uint16_t *pixels);

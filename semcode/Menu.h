@@ -67,7 +67,7 @@ class  Game_Menu{
     
     /*
   
-    Function cotnrols mmarked button in option system and changes the int values with &
+    Function cotnrols mmarked button in option system and changes the int value
     dependent on what selected is.
     [w] = up, [s] = down, [f] = select, [x] = back to menu 
     

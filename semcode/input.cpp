@@ -76,7 +76,9 @@ char getch()
 	char ch;
 
     /* Read in one character */
-    read(0,&ch,1);
+    if(!read(0,&ch,1)){
+        fprintf(stderr,"ERROR: cannot read a char!\n");
+    }
 
     return ch;
 }

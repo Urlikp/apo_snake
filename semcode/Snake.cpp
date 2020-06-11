@@ -43,7 +43,7 @@ void Snake::set_position_of_food(int new_food_x, int new_food_y){
 
 
 Snake_Tile Snake::get_tile(int pos){
-    if (pos>=0 && pos < size)
+    if (pos>=0 && pos < (int)size)
     {
         return snake_tiles[pos];
     }else{
@@ -142,6 +142,8 @@ Snake_Tile::Direction Snake::choose_move2(){
 			case Snake_Tile::LEFT:
 				(head_x)--;
 				break;
+            default:
+                break;
 			}
 			if (head_x >= 0 && head_x < gm.game_width/gm.size_of_tile && head_y >= 0 && head_y < gm.game_height/gm.size_of_tile)
 			{

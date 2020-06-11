@@ -20,7 +20,7 @@ using namespace std;
 class Snake_Handler{
     public:
         std::vector<Snake*> snakes;
-        int size;
+        size_t size;
         Snake_Handler(){
             snakes.reserve(DEFAULT_HANDLER_SIZE);
             printf("Handler: inititalized.\n");

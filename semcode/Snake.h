@@ -52,11 +52,23 @@ class Snake{
         int velocity_x, velocity_y;
 
     //PROTECTED FUNCTIONS
+
+        /*it return true if new direction is correct it means if is not the opposite direction of previous one*/
         bool is_new_direction_correct(Snake_Tile::Direction new_dir, Snake_Tile::Direction prev_dir);
         Snake_Tile::Direction set_direction();
+        
+        /*it moves with coords of each tile of snake
+        the leader is head*/
         void move_tiles();
+
+        /*function with simple AI chooses free
+        moves based on be closer to food*/
         Snake_Tile::Direction choose_move2();
+        
+        /*to set dictionary with moves*/
         void set_moves();
+
+        /* to check if tile is occupied with coord X and Y*/
         bool is_tile_occupied(int x, int y);
 
     public:
@@ -118,7 +130,7 @@ class Snake{
             @return
             Actual size of snake
         */
-        int get_size(){return size;}
+        size_t get_size(){return size;}
 
         /*
             Set snake's food_x and food_y to know where food is (used AI of snake)

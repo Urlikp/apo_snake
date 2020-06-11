@@ -12,8 +12,13 @@
 
 #include "Rectangle.h"
 
+/*
+
+This class represents tile of snake
+
+*/
 class Snake_Tile{
-        //int width, height;
+        /*coords*/
         int x, y;
     public:
         /*Directions*/
