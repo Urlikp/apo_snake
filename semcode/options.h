@@ -69,7 +69,7 @@ class Menu_Options{
       */
       Menu_Options(){
         pointer_to_color = 1;
-        pointer_to_color2 = 2;
+        pointer_to_color2 = 3;
         pointer_to_item = 1;
         copy_speed =1;
         copy_size_of_tile = 32;
