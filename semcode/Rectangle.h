@@ -37,16 +37,13 @@ class Rectangle
         @return
         	if rectangles intersect than true, otherwise false
         */
-        bool intersects(Rectangle* rect)
-        {
-            if (x > rect->x + rect->w || rect->x > x + w) 	
-            {
-                return false;
+        bool intersects(Rectangle *rect){
+                if (x > rect->x + rect->w || rect->x > x + w) 	{
+                    return false;
+                }
+                if (y > rect->y + rect->h || rect->y > y + h) 	{
+                    return false;
+                }
+                return true; 
             }
-            if (y > rect->y + rect->h || rect->y > y + h) 	
-            {
-                return false;
-            }
-            return true; 
-        }
-};
+    };

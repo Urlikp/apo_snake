@@ -20,7 +20,7 @@
 
 /*    
 class Food creates a food for snakes, if new food is created it tells each snake
-	where the food is.
+	where the food is. Food is generated randomly.
 */
 class Food
 {  
