@@ -1,6 +1,5 @@
 *.o
 depend
 APO_Snake
-Makefile
 connect.gdb
 .vscode/
