@@ -13,25 +13,25 @@
 #include "Rectangle.h"
 
 /*
-    This class represents snake tiles
+This class represents snake tiles
 */
 class Snake_Tile
 {
         /*
-            coords
+        coords
         */
         int x, y;
     public:
     
         /*
-            Directions
+        Directions
         */
         enum Direction{UP, LEFT, DOWN, RIGHT, NONE};
         Direction dir;
 
         /*
-            Constructor without parameters needs to be for
-            creating new snake tile in Snake
+        Constructor without parameters needs to be for creating new snake tile 
+        	in Snake
         */
         Snake_Tile()
         {
@@ -40,10 +40,10 @@ class Snake_Tile
     	};
 
         /*
-            Constructor of snake tile with two parameters
-            @params
-            int start_x = xtile
-            int start_y = xtile
+        Constructor of snake tile with two parameters
+        @params
+            int start_x - xtile
+            int start_y - ytile
         */
         Snake_Tile(int start_x, int start_y)
         {
@@ -53,18 +53,36 @@ class Snake_Tile
         }
 
         /*
-            Getters and setters
+        Getters and setters
         */
-        int get_x(){return x;}
-        int get_y(){return y;}
-        void set_x(int new_x){x=new_x;}
-        void set_y(int new_y){y=new_y;}
-        Direction get_direction(){return dir;}
-        void set_direction(Direction new_dir){dir=new_dir;}
+        int get_x()
+        {
+        	return x;
+    	}
+        int get_y()
+        {
+        	return y;
+    	}
+        void set_x(int new_x)
+        {
+        	x = new_x;
+    	}
+        void set_y(int new_y)
+        {
+        	y = new_y;
+    	}
+        Direction get_direction()
+        {
+        	return dir;
+    	}
+        void set_direction(Direction new_dir)
+        {
+        	dir = new_dir;
+    	}
         
         /*
-            Creates from enum direction string
-            used for printing states of snake head
+        Creates from enum direction string used for printing states of snake 
+        	head
         */
         const char* print_direction()
         {
@@ -84,12 +102,13 @@ class Snake_Tile
         }
 
         /*
-            Returns rectangle of occupied area of tile
-            used in snake's method fill array
-            @params
-            -int w - width, int h - height, both in tilesize
-            @return
-            -rectangle
+        Returns rectangle of occupied area of tile used in snake's method 
+        	fill array
+        @params
+            int w - width in tilesize
+            int h - height in tilesize
+        @return
+            rectangle
         */
         Rectangle* get_occupied_field(int w, int h)
         {
@@ -97,13 +116,12 @@ class Snake_Tile
         }
 
         /*
-            Checks if two snake tiles intersect each other
-            @params
+        Checks if two snake tiles intersect each other
+        @params
             Snake_Tile tile - testing subject
             int tile_size - size of tile.
-            @return 
+        @return 
             True if two tiles intersect each other otherwise false 
-        
         */
         bool intersects(Snake_Tile tile, int tile_size)
         {

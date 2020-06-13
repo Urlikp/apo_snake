@@ -12,19 +12,6 @@
 
 #define _POSIX_C_SOURCE 200112L
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <time.h>
-#include <unistd.h>
-
-#include <math.h>
-
-#include "mzapo_parlcd.h"
-#include "mzapo_phys.h"
-#include "mzapo_regs.h"
-#include "font_types.h"
-
 #include "Render.h"
 
 #include "input.h"
