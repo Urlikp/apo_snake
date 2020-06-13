@@ -1,8 +1,8 @@
 /*******************************************************************
-  Simple program to implement video game Snake on MicroZed based 
+  Simple program to implement Snake video game on MicroZed based 
   MZ_APO board designed by Petr Porazil at PiKRON
-  
-  Snake_Tile.cpp  - 
+
+  Snake_Tile.h - class that implements Snake tiles
 
   (C) Copyright 2020 by Jiri Povolny and Marian Krotil
       e-mail:   povolji2@fel.cvut.cz, krotima1@fel.cvut.cz
@@ -13,19 +13,27 @@
 #include "Rectangle.h"
 
 /*
-
-This class represents tile of snake
-
+This class represents snake tiles
 */
-class Snake_Tile{
-        /*coords*/
+class Snake_Tile
+{
+        /*
+        coords
+        */
         int x, y;
     public:
-        /*Directions*/
+        /*
+        Directions
+        */
         enum Direction{UP, LEFT, DOWN, RIGHT, NONE};
         Direction dir;
-        Snake_Tile(){x=0; y=0;};
-        Snake_Tile(int start_x, int start_y){
+        Snake_Tile()
+        {
+        	x=0; 
+        	y=0;
+    	};
+        Snake_Tile(int start_x, int start_y)
+        {
                 x = start_x;
                 y = start_y;
                 dir = NONE;
@@ -36,7 +44,8 @@ class Snake_Tile{
         void set_y(int new_y){y=new_y;}
         Direction get_direction(){return dir;}
         void set_direction(Direction new_dir){dir=new_dir;}
-        const char* print_direction(){
+        const char* print_direction()
+        {
             switch (dir)
             {
             case UP:
@@ -51,10 +60,12 @@ class Snake_Tile{
                 return "NONE";
             }
         }
-        Rectangle* get_occupied_field(int w, int h){
+        Rectangle* get_occupied_field(int w, int h)
+        {
             return new Rectangle(x, y, w, h);
         }
-        bool intersects(Snake_Tile tile, int tile_size){
+        bool intersects(Snake_Tile tile, int tile_size)
+        {
             return get_occupied_field(tile_size,tile_size)->intersects(tile.get_occupied_field(tile_size, tile_size));
         }
 };

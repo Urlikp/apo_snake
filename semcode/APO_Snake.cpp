@@ -1,8 +1,8 @@
 /*******************************************************************
-  Simple program to implement video game Snake on MicroZed based 
+  Simple program to implement Snake video game on MicroZed based 
   MZ_APO board designed by Petr Porazil at PiKRON
 
-  APO_Snake.c      - main file
+  APO_Snake.c - main file
 
   (C) Copyright 2020 by Jiri Povolny and Marian Krotil
       e-mail:   povolji2@fel.cvut.cz, krotima1@fel.cvut.cz
@@ -28,7 +28,7 @@
 #include "Render.h"
 
 #include "input.h"
-#include "Game_Properites.h"
+#include "Game_Properties.h"
 
 #include "Snake_Handler.h"
 #include "Food.h"
@@ -47,7 +47,6 @@
 #define GAME_HEIGHT			320
 
 #define SIZE_OF_SQUARE		32
-//#define SIZE_OF_PIXEL		4
 
 #define SPEED				1
 
@@ -254,18 +253,23 @@ int main(int argc, char* argv[])
 //END OF MAIN*********************************
 
 
-void update_demo_mode(Score* score, Game_Properties game_properties){
+void update_demo_mode(Score* score, Game_Properties game_properties)
+{
 	clear_array(BLACK, fb);
 	score->reset();
 	bool is_player = false;
 	Snake_Handler handler = Snake_Handler();
 	Snake sn = Snake(2, 2, game_properties.color_1, game_properties, is_player);
-	Snake sn2 = Snake(GAME_WIDTH/game_properties.size_of_tile-2, GAME_HEIGHT/game_properties.size_of_tile-2, game_properties.color_2, game_properties, is_player);
+	Snake sn2 = Snake(GAME_WIDTH / game_properties.size_of_tile - 2, 
+					GAME_HEIGHT / game_properties.size_of_tile - 2, 
+					game_properties.color_2, game_properties, is_player);
 	sn.set_opposite_snake(&sn2);
 	sn2.set_opposite_snake(&sn);
 	handler.add_snake(&sn);
 	handler.add_snake(&sn2);
-	Food food = Food(&handler, (GAME_WIDTH/game_properties.size_of_tile)/2, (GAME_HEIGHT/game_properties.size_of_tile)/2, 3, FOOD_COLOR, GAME_WIDTH, GAME_HEIGHT, 
+	Food food = Food(&handler, (GAME_WIDTH / game_properties.size_of_tile) / 2, 
+					(GAME_HEIGHT / game_properties.size_of_tile) / 2, 3, 
+					FOOD_COLOR, GAME_WIDTH, GAME_HEIGHT, 
 					game_properties.size_of_tile);
 	food.fill_array(fb, LCD_WIDTH);
 	handler.fill_array(fb, LCD_WIDTH);
@@ -354,11 +358,15 @@ void update_standard_mode(Score* score, Game_Properties game_properties)
 	bool is_player = true;
 	Snake_Handler handler = Snake_Handler();
 	Snake sn = Snake(2, 2, game_properties.color_1, game_properties, is_player);
-	Snake sn2 = Snake(GAME_WIDTH/game_properties.size_of_tile-2, GAME_HEIGHT/game_properties.size_of_tile-2, game_properties.color_2, game_properties, !is_player);
+	Snake sn2 = Snake(GAME_WIDTH / game_properties.size_of_tile - 2,
+					GAME_HEIGHT / game_properties.size_of_tile - 2, 
+					game_properties.color_2, game_properties, !is_player);
 	sn2.set_opposite_snake(&sn);
 	handler.add_snake(&sn);
 	handler.add_snake(&sn2);
-	Food food = Food(&handler, (GAME_WIDTH/game_properties.size_of_tile)/2, (GAME_HEIGHT/game_properties.size_of_tile)/2, 3, FOOD_COLOR, GAME_WIDTH, GAME_HEIGHT, 
+	Food food = Food(&handler, (GAME_WIDTH / game_properties.size_of_tile) / 2, 
+					(GAME_HEIGHT / game_properties.size_of_tile) / 2, 3, 
+					FOOD_COLOR, GAME_WIDTH, GAME_HEIGHT, 
 					game_properties.size_of_tile);
 	food.fill_array(fb, LCD_WIDTH);
 	handler.fill_array(fb, LCD_WIDTH);
@@ -519,7 +527,6 @@ void loading()
 		{
 			if (pointer==0)
 			{
-				//clear_array(BLACK, fb);
 				int xTile = (LCD_WIDTH / 8) - 35, yTile = 3 * (LCD_HEIGHT / 16);
             	char str[] = "PRESS:  F ";
 				int size_of_str = 0;

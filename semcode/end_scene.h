@@ -1,8 +1,8 @@
 /*******************************************************************
-  Simple program to move in menu on MicroZed
-  based MZ_APO board designed by Petr Porazil at PiKRON
+  Simple program to implement Snake video game on MicroZed based 
+  MZ_APO board designed by Petr Porazil at PiKRON
 
-  Menu.h      - 
+  end_scene.h - credits
 
   (C) Copyright 2020 by Jiri Povolny and Marian Krotil
       e-mail:   povolji2@fel.cvut.cz, krotima1@fel.cvut.cz
@@ -10,30 +10,20 @@
 
  *******************************************************************/
 
-
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-
-#include "Game_Properites.h"
 #include "Render.h"
-#include "Snake.h"
 
 #ifndef BASE_COLOR
 #define BASE_COLOR DARK_WHITE
 #endif
 
 //TEXT
-#define STARTX_1_ES LCD_WIDTH/8-LCD_WIDTH/10
-
-
+#define STARTX_1_ES (LCD_WIDTH / 8) - (LCD_WIDTH / 10)
 
 /*
-    Class used when the game ends
+Class used when the game ends
 */
-class End_Scene{
+class End_Scene
+{
     private:
         int counter;
         int moveX;
@@ -43,43 +33,35 @@ class End_Scene{
     public:
 
         /*
-
         Constructor of a class that creates an fundamentation of class
-        and sets values 
-        
+        	and sets values 
         */
-        End_Scene(){
-        counter = 0;
-        moveX = STARTX_1_ES;
-        moveY = LCD_HEIGHT / 4;
-        max = 400;
+        End_Scene()
+        {
+			counter = 0;
+		    moveX = STARTX_1_ES;
+        	moveY = LCD_HEIGHT / 4;
+        	max = 400;
         }
 
         /*
-
         Getter
-        
         */
-        int get_max(){return max;}
-
+        int get_max()
+        {
+        	return max;
+    	}
 
         /*
-
         Function updates the moveY to create animation with text
-        
         */
         void end_scene_update();
 
-
         /*
-
         Function renders the end text
-
         @params 
-          uint16_t* fb = to write into it in a render method
-          unsigned char * parlcd_mem_base = to pass in render method
-          Game_properties to know which size could be used for render;
-        
+          uint16_t* fb - to write into it in a render method
+          unsigned char* parlcd_mem_base - to pass in render method
         */
-        void end_scenefill_array(uint16_t* fb, unsigned char *parlcd_mem_base);
+        void end_scenefill_array(uint16_t* fb, unsigned char* parlcd_mem_base);
 };
